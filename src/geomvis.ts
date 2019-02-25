@@ -11,6 +11,7 @@ import "svg.select.js";
 import "svg.resize.js";
 import "svg.draggable.js";
 import "svg.draw.js";
+import { svgLineLength } from "./utils";
 
 abstract class Action {
     abstract undo() : void;
@@ -108,6 +109,12 @@ export function onLoad() {
         theSVG.on('mouseup', function(event){
             // finish drawing
             line.draw("stop", event);
+
+            // ignore lines that are too small
+            if(svgLineLength(line) < 8) {
+                line.remove();
+                return;
+            }
 
             // add to history
             pushToUndoHistory(new class extends Action {
