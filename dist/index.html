@@ -7,6 +7,13 @@
         <title>GeomVis</title>
 
         <script src="geomvis.js" charset="utf-8"></script>
+        <style>
+            #vizcontainer {
+                background: white;
+                background-size: 40px 40px;
+                background-image: linear-gradient(to right, lightgray 1px, transparent 1px), linear-gradient(to bottom, lightgray 1px, transparent 1px);
+            }
+        </style>
     </head>
     <body id="body" class="row h-100" onload="geomvis.onLoad()">
         <div id="leftpane" class="col-3" style="background: lightgray">
@@ -29,12 +36,12 @@
                 </li>
             </ul>
         </div>
-        <div id="mainpanecontainer" class="col-9" style="background: lightgoldenrodyellow">
+        <div id="mainpanecontainer" class="col-9" style="background: lightgoldenrodyellow; padding: 0">
             <div id="hinttext" class="position-absolute text-muted" style="top: 10px">
                 Click and drag to draw lines
                 <button id="undobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.undo()" disabled>Undo</button>
                 <button id="redobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.redo()" disabled>Redo</button></div>
-            <div id="vizcontainer" class="container-fluid h-100" style="color: initial"></div>
+            <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
             <div id="bottompane" class="row position-absolute w-75 border" style="bottom: 10px">
                 <div id="pseudocodepanel" class="col-6 border"></div>
                 <div id="steptextpanel" class="col-6 border">step text</div>
