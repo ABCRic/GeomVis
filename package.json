@@ -1,0 +1,31 @@
+{
+  "name": "geomvis",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "dependencies": {
+    "@types/d3": "^5.5.0",
+    "bootstrap": "^4.3.1",
+    "d3": "^5.7.0",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7",
+    "svg.draggable.js": "^2.2.2",
+    "svg.js": "^2.7.1",
+    "svg.resize.js": "^1.4.3",
+    "svg.select.js": "^3.0.1",
+    "typescript": "^3.2.2"
+  },
+  "devDependencies": {
+    "css-loader": "^2.1.0",
+    "style-loader": "^0.23.1",
+    "ts-loader": "^5.3.3",
+    "webpack": "^4.28.1",
+    "webpack-cli": "^3.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "Ricardo Farracho (ABCRic)",
+  "license": ""
+}

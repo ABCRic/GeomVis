@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html style="width: 100%; height: 100%">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <title>GeomVis</title>
+
+        <script src="geomvis.js" charset="utf-8"></script>
+    </head>
+    <body id="body" class="row h-100" onload="geomvis.onLoad()">
+        <div id="leftpane" class="col-3" style="background: lightgray">
+            <h1 id="title" class="display-3 text-center">GeomVis</h1>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <div>Convex hull</div>
+                </li>
+                <li class="list-group-item">
+                    <div>Line Segment Intersection</div>
+                </li>
+                <li class="list-group-item">
+                    <div>Point in Polygon</div>
+                </li>
+                <li class="list-group-item">
+                    <div>Cohen-Sutherland</div>
+                </li>
+                <li class="list-group-item">
+                    <div>Sutherland-Hodgman</div>
+                </li>
+            </ul>
+        </div>
+        <div id="mainpanecontainer" class="col-9" style="background: lightgoldenrodyellow">
+            <div id="hinttext" class="position-absolute text-muted" style="top: 10px">Click and drag to draw lines</div>
+            <div id="vizcontainer" class="container-fluid h-100" style="color: initial"></div>
+            <div id="bottompane" class="row position-absolute w-75 border" style="bottom: 10px">
+                <div id="pseudocodepanel" class="col-6 border"></div>
+                <div id="steptextpanel" class="col-6 border">step text</div>
+            </div>
+        </div>
+    </body>
+</html>
