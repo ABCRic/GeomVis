@@ -26,6 +26,8 @@ export function undo() {
     if(!act) return;
     act.undo();
     redoStack.push(act);
+
+    updateUndoRedoButtons();
 }
 
 export function redo() {
@@ -34,6 +36,21 @@ export function redo() {
     if(!act) return;
     act.redo();
     undoStack.push(act);
+
+    updateUndoRedoButtons();
+}
+
+function updateUndoRedoButtons() {
+    let undoButton = document.getElementById("undobutton") as HTMLButtonElement;
+    undoButton!.disabled = undoStack.length == 0;
+    let redoButton = document.getElementById("redobutton") as HTMLButtonElement;
+    redoButton!.disabled = redoStack.length == 0;
+}
+
+function pushToUndoHistory(act: Action) {
+    undoStack.push(act);
+    redoStack.length = 0;
+    updateUndoRedoButtons();
 }
 
 let theSVG : SVG.Doc;
@@ -93,17 +110,17 @@ export function onLoad() {
             line.draw("stop", event);
 
             // add to history
-            undoStack.push(new class extends Action {
+            pushToUndoHistory(new class extends Action {
                 path: SVG.Line;
                 constructor(path: SVG.Line) {
                     super();
                     this.path = path;
                 }
                 undo() {
-                    line.remove();
+                    this.path.remove();
                 }
                 redo() {
-                    theSVG.add(line);
+                    theSVG.add(this.path);
                 }
             }(line));
         });
