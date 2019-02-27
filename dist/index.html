@@ -42,9 +42,19 @@
                 <button id="undobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.undo()" disabled>Undo</button>
                 <button id="redobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.redo()" disabled>Redo</button></div>
             <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
-            <div id="bottompane" class="row position-absolute w-75 border" style="bottom: 10px">
-                <div id="pseudocodepanel" class="col-6 border"></div>
-                <div id="steptextpanel" class="col-6 border">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+            <div id="bottompane" class="col-12 position-absolute w-75 border" style="bottom: 10px">
+                <div class="row border">
+                    <button id="loadbutton" type="button" class="btn btn-outline-dark mx-1">Load input</button>
+                    <button id="defaultbutton" type="button" class="btn btn-outline-dark mx-1">Default input</button>
+                    <button id="executebutton" type="button" class="btn btn-outline-dark mx-1">Execute</button>
+                    <button id="backbutton" type="button" class="btn btn-outline-dark mx-1">Back</button>
+                    <button id="forwardbutton" type="button" class="btn btn-outline-dark mx-1">Forward</button>
+                    <button id="playpausebutton" type="button" class="btn btn-outline-dark mx-1">Play/Pause</button>
+                </div>
+                <div class="row border">
+                    <div id="pseudocodepanel" class="col-6 border"></div>
+                    <div id="steptextpanel" class="col-6 border">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+                </div>
             </div>
         </div>
     </body>
