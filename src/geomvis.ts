@@ -57,6 +57,28 @@ function pushToUndoHistory(act: Action) {
 let theSVG : SVG.Doc;
 let d3SVG : d3.Selection<d3.BaseType, {}, HTMLElement, any>;
 
+let currentStep = 0;
+
+export function forward() {
+    let oldStep = currentStep;
+    if(currentStep < pseudoCode.length - 1)
+        currentStep++;
+    updatePseudoCodeHighlight(oldStep);
+}
+
+export function back() {
+    let oldStep = currentStep;
+    if(currentStep > 0)
+        currentStep--;
+    updatePseudoCodeHighlight(oldStep);
+}
+
+function updatePseudoCodeHighlight(oldStep: number) {
+    let items = (document.getElementById("pseudocodepanel") as HTMLDivElement).childNodes as NodeListOf<HTMLPreElement>;
+    items[oldStep].classList.remove("pseudocode-currentline");
+    items[currentStep].classList.add("pseudocode-currentline");
+}
+
 export function onLoad() {
     // create the SVG
     theSVG = SVG("vizcontainer").size("100%", "100%").attr("id", "actualviz").attr("color", "#ffffff");
@@ -135,10 +157,12 @@ export function onLoad() {
 
     // setup pseudo-code panel
     let pseudoCodePanel = document.getElementById("pseudocodepanel")!;
-    pseudoCode.forEach(line => {
+    pseudoCode.forEach((line, index) => {
         let p = document.createElement("pre");
         p.textContent = line;
         p.classList.add("mb-0"); // remove bottom margin
+        if(index == 0)
+            p.classList.add("pseudocode-currentline");
         pseudoCodePanel.appendChild(p);
     });
 }

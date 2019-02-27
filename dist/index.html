@@ -13,6 +13,10 @@
                 background-size: 40px 40px;
                 background-image: linear-gradient(to right, lightgray 1px, transparent 1px), linear-gradient(to bottom, lightgray 1px, transparent 1px);
             }
+
+            .pseudocode-currentline {
+                background: yellow;
+            }
         </style>
     </head>
     <body id="body" class="row h-100" onload="geomvis.onLoad()">
@@ -47,8 +51,8 @@
                     <button id="loadbutton" type="button" class="btn btn-outline-dark mx-1">Load input</button>
                     <button id="defaultbutton" type="button" class="btn btn-outline-dark mx-1">Default input</button>
                     <button id="executebutton" type="button" class="btn btn-outline-dark mx-1">Execute</button>
-                    <button id="backbutton" type="button" class="btn btn-outline-dark mx-1">Back</button>
-                    <button id="forwardbutton" type="button" class="btn btn-outline-dark mx-1">Forward</button>
+                    <button id="backbutton" type="button" class="btn btn-outline-dark mx-1" onclick="geomvis.back()">Back</button>
+                    <button id="forwardbutton" type="button" class="btn btn-outline-dark mx-1" onclick="geomvis.forward()">Forward</button>
                     <button id="playpausebutton" type="button" class="btn btn-outline-dark mx-1">Play/Pause</button>
                 </div>
                 <div class="row border">
