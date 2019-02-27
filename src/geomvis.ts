@@ -73,6 +73,28 @@ export function back() {
     updatePseudoCodeHighlight(oldStep);
 }
 
+export function playPause() {
+    if(isPlaying) pause();
+    else play();
+}
+
+let isPlaying = false;
+function play() {
+    isPlaying = true;
+    var id = setInterval(iter, 800)
+    function iter() {
+        if(isPlaying) {
+            forward();
+        } else {
+            clearInterval(id);
+        }
+    };
+}
+
+function pause() {
+    isPlaying = false;
+}
+
 function updatePseudoCodeHighlight(oldStep: number) {
     let items = (document.getElementById("pseudocodepanel") as HTMLDivElement).childNodes as NodeListOf<HTMLPreElement>;
     items[oldStep].classList.remove("pseudocode-currentline");
