@@ -54,6 +54,19 @@ function pushToUndoHistory(act: Action) {
     updateUndoRedoButtons();
 }
 
+let shiftDown = false;
+function setShiftDown(event: KeyboardEvent) {
+    if(event.keyCode === 16 || event.charCode === 16){
+        shiftDown = true;
+    }
+}
+
+function setShiftUp(event: KeyboardEvent) {
+    if(event.keyCode === 16 || event.charCode === 16){
+        shiftDown = false;
+    }
+}
+
 let theSVG : SVG.Doc;
 let d3SVG : d3.Selection<d3.BaseType, {}, HTMLElement, any>;
 
@@ -102,6 +115,10 @@ function updatePseudoCodeHighlight(oldStep: number) {
 }
 
 export function onLoad() {
+    // set up event handlers
+    window.addEventListener("keydown", setShiftDown);
+    window.addEventListener("keyup", setShiftUp);
+
     // create the SVG
     theSVG = SVG("vizcontainer").size("100%", "100%").attr("id", "actualviz").attr("color", "#ffffff");
     console.log(theSVG);
@@ -141,6 +158,97 @@ export function onLoad() {
     rect.selectize({rotationPoint: false});
     rect.resize();
     rect.draggable();
+
+    {
+        // setup rectangle event handling for undo/redo
+        interface RectData {
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+        }
+        class RectModifyAction extends Action {
+            oldData: RectData;
+            newData: RectData;
+            target: SVGRectElement;
+            constructor(oldData: RectData, newData: RectData, target: SVGRectElement) {
+                super();
+                this.oldData = oldData;
+                this.newData = newData;
+                this.target = target;
+            }
+            undo() {
+                let adopted = SVG.adopt(this.target);
+                adopted.attr("x", this.oldData.x);
+                adopted.attr("y", this.oldData.y);
+                adopted.attr("width", this.oldData.width);
+                adopted.attr("height", this.oldData.height);
+            }
+            redo() {
+                let adopted = SVG.adopt(this.target);
+                adopted.attr("x", this.newData.x);
+                adopted.attr("y", this.newData.y);
+                adopted.attr("width", this.newData.width);
+                adopted.attr("height", this.newData.height);
+            }
+        }
+
+        let oldData : RectData;
+        let newData : RectData;
+        rect.on("resizestart", (event: any) => {
+            let adopted = SVG.adopt(event.target);
+            oldData = {
+                x: adopted.x(),
+                y: adopted.y(),
+                width: adopted.width(),
+                height: adopted.height(),
+            };
+        });
+        rect.on("resizing", (event: any) => {
+            let adopted = SVG.adopt(event.target);
+            newData = {
+                x: adopted.x(),
+                y: adopted.y(),
+                width: adopted.width(),
+                height: adopted.height(),
+            };
+        });
+        rect.on("resizedone", (event: any) => {
+            pushToUndoHistory(new RectModifyAction(oldData, newData, event.target));
+        });
+
+        rect.on("beforedrag", function(this: SVG.Rect, event: any) {
+            // drag only if shift is pressed
+            if(!shiftDown) {
+                event.preventDefault();
+                return;
+            }
+
+            let adopted = SVG.adopt(event.target);
+            oldData = {
+                x: adopted.x(),
+                y: adopted.y(),
+                width: adopted.width(),
+                height: adopted.height(),
+            };
+            oldData = {
+                x: this.x(),
+                y: this.y(),
+                width: this.width(),
+                height: this.height(),
+            }
+        });
+
+        rect.on("dragend", function(this: SVG.Rect, event: any) {
+            newData = {
+                x: this.x(),
+                y: this.y(),
+                width: this.width(),
+                height: this.height(),
+            }
+            pushToUndoHistory(new RectModifyAction(oldData, newData, event.target));
+        });
+    }
 
     // setup line drawing
     {
