@@ -13,6 +13,8 @@ import "svg.draggable.js";
 import "svg.draw.js";
 import { svgLineLength } from "./utils";
 
+const LEFT_MOUSE_BUTTON = 0;
+
 abstract class Action {
     abstract undo() : void;
     abstract redo() : void;
@@ -252,13 +254,19 @@ export function onLoad() {
 
     // setup line drawing
     {
-        let line : SVG.Line;
+        let line : SVG.Line | null;
 
-        theSVG.on('mousedown', function(event) {
+        theSVG.on('mousedown', function(event:MouseEvent) {
+            if(event.button != LEFT_MOUSE_BUTTON)
+                return;
+
             // start drawing
             line = theSVG.line(0,0,0,0).stroke({color: "black", width: 1}).draw(event, {});
         });
-        theSVG.on('mouseup', function(event){
+        theSVG.on('mouseup', function(event:MouseEvent){
+            if(!line)
+                return;
+            
             // finish drawing
             line.draw("stop", event);
 
@@ -282,6 +290,8 @@ export function onLoad() {
                     theSVG.add(this.path);
                 }
             }(line));
+
+            line = null;
         });
     }
 
