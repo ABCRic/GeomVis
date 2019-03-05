@@ -49,16 +49,20 @@
             </div>
             <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
             <div id="bottompane" class="col-12 position-absolute w-75 border" style="bottom: 10px">
-                <div class="row border">
-                    <div>
-                        <button id="loadbutton" type="button" class="btn btn-outline-dark mx-1" onclick="fileuploader.click()">Load input</button>
+                <div class="row border justify-content-between">
+                    <div class="col-4">
+                        <button id="loadbutton" type="button" class="btn btn-outline-dark" onclick="fileuploader.click()">Load input</button>
                         <input id="fileuploader" type="file" accept=".svg, .txt" style="display:none" onchange="geomvis.fileSelected()">
+                        <button id="defaultbutton" type="button" class="btn btn-outline-dark">Default input</button>
                     </div>
-                    <button id="defaultbutton" type="button" class="btn btn-outline-dark mx-1">Default input</button>
-                    <button id="executebutton" type="button" class="btn btn-outline-dark mx-1">Execute</button>
-                    <button id="backbutton" type="button" class="btn btn-outline-dark mx-1" onclick="geomvis.back()">Back</button>
-                    <button id="forwardbutton" type="button" class="btn btn-outline-dark mx-1" onclick="geomvis.forward()">Forward</button>
-                    <button id="playpausebutton" type="button" class="btn btn-outline-dark mx-1" onclick="geomvis.playPause()">Play/Pause</button>
+                    <div class="col-4 text-center">
+                        <button id="executebutton" type="button" class="btn btn-outline-dark">Execute</button>
+                    </div>
+                    <div class="col-4 text-right">
+                        <button id="backbutton" type="button" class="btn btn-outline-dark" onclick="geomvis.back()">Back</button>
+                        <button id="forwardbutton" type="button" class="btn btn-outline-dark" onclick="geomvis.forward()">Forward</button>
+                        <button id="playpausebutton" type="button" class="btn btn-outline-dark" onclick="geomvis.playPause()">Play/Pause</button>
+                    </div>
                 </div>
                 <div class="row border">
                     <div id="pseudocodepanel" class="col-6 border"></div>
