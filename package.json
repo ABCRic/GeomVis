@@ -14,13 +14,14 @@
     "svg.draw.js": "^2.0.3",
     "svg.js": "^2.7.1",
     "svg.resize.js": "^1.4.3",
-    "svg.select.js": "^3.0.1",
-    "typescript": "^3.2.2"
+    "svg.select.js": "^3.0.1"
   },
   "devDependencies": {
     "css-loader": "^2.1.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3333",
+    "typescript-tslint-plugin": "^0.3.1",
     "webpack": "^4.28.1",
     "webpack-cli": "^3.2.1"
   },
