@@ -20,7 +20,7 @@
         </style>
     </head>
     <body id="body" class="row h-100" onload="geomvis.onLoad()">
-        <div id="leftpane" class="col-3" style="background: lightgray">
+        <div id="leftpane" class="col-3" style="background: #bacdb0">
             <h1 id="title" class="display-3 text-center">GeomVis</h1>
             <ul class="list-group">
                 <li class="list-group-item">
@@ -48,8 +48,8 @@
                 Hold Shift and click and drag the rectangle to move it
             </div>
             <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
-            <div id="bottompane" class="col-12 position-absolute w-75 border" style="bottom: 10px">
-                <div class="row border justify-content-between">
+            <div id="bottompane" class="col-12 position-absolute w-75" style="bottom: 10px; background: #eaf7cf; border-radius: 0.5em; border: 1px solid grey">
+                <div class="row p-1 justify-content-between" style="border-bottom: 1px solid grey">
                     <div class="col-4">
                         <button id="loadbutton" type="button" class="btn btn-outline-dark" onclick="fileuploader.click()">Load input</button>
                         <input id="fileuploader" type="file" accept=".svg, .txt" style="display:none" onchange="geomvis.fileSelected()">
@@ -60,13 +60,13 @@
                     </div>
                     <div class="col-4 text-right">
                         <button id="backbutton" type="button" class="btn btn-outline-dark" onclick="geomvis.back()">Back</button>
-                        <button id="forwardbutton" type="button" class="btn btn-outline-dark" onclick="geomvis.forward()">Forward</button>
                         <button id="playpausebutton" type="button" class="btn btn-outline-dark" onclick="geomvis.playPause()">Play/Pause</button>
+                        <button id="forwardbutton" type="button" class="btn btn-outline-dark" onclick="geomvis.forward()">Forward</button>
                     </div>
                 </div>
-                <div class="row border">
-                    <div id="pseudocodepanel" class="col-6 border"></div>
-                    <div id="steptextpanel" class="col-6 border">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+                <div class="row">
+                    <div id="pseudocodepanel" class="col-6" style="border-right: 1px solid grey"></div>
+                    <div id="steptextpanel" class="col-6">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
                 </div>
             </div>
         </div>
