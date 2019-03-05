@@ -50,7 +50,10 @@
             <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
             <div id="bottompane" class="col-12 position-absolute w-75 border" style="bottom: 10px">
                 <div class="row border">
-                    <button id="loadbutton" type="button" class="btn btn-outline-dark mx-1">Load input</button>
+                    <div>
+                        <button id="loadbutton" type="button" class="btn btn-outline-dark mx-1" onclick="fileuploader.click()">Load input</button>
+                        <input id="fileuploader" type="file" accept=".svg, .txt" style="display:none" onchange="geomvis.fileSelected()">
+                    </div>
                     <button id="defaultbutton" type="button" class="btn btn-outline-dark mx-1">Default input</button>
                     <button id="executebutton" type="button" class="btn btn-outline-dark mx-1">Execute</button>
                     <button id="backbutton" type="button" class="btn btn-outline-dark mx-1" onclick="geomvis.back()">Back</button>

@@ -11,6 +11,7 @@ import "svg.select.js";
 import "svg.resize.js";
 import "svg.draggable.js";
 import "svg.draw.js";
+import "./deps/svg.topoly.js";
 import { svgLineLength } from "./utils";
 
 const LEFT_MOUSE_BUTTON = 0;
@@ -116,6 +117,66 @@ function updatePseudoCodeHighlight(oldStep: number) {
     items[currentStep].classList.add("pseudocode-currentline");
 }
 
+export function fileSelected() {
+    let file = ((document.getElementById("fileuploader") as HTMLInputElement).files||[null])[0];
+    if(file) {
+        let reader = new FileReader();
+        reader.readAsText(file); // result will be string in reader.result
+        reader.onload = function(event) {
+            let fileContents = reader.result as string;
+            loadFile(fileContents);
+        }
+        reader.onerror = function(event) {
+            // todo: better error
+            (document.getElementById("pseudocodepanel") as HTMLDivElement).innerText = "Error reading file.";
+        }
+    }
+}
+
+let rect : SVG.Rect;
+let lines : SVG.Line[];
+
+function loadFile(contents: string) {
+    let doc = new DOMParser().parseFromString(contents, "image/svg+xml");
+    let docRect = doc.getElementsByTagName("rect")[0];
+    let docLines = doc.getElementsByTagName("line");
+    let docPaths = doc.getElementsByTagName("path");
+
+    // todo: clear current document
+    
+    // adapt our rect to first rect in document
+    let adoptedRect = SVG.adopt(docRect);
+    rect.attr("x", adoptedRect.x());
+    rect.attr("y", adoptedRect.y());
+    rect.attr("width", adoptedRect.width());
+    rect.attr("height", adoptedRect.height());
+
+    // fetch lines from document
+    for(const line of docLines) {
+        let adoptedLine = SVG.adopt(line) as SVG.Line;
+        theSVG.add(adoptedLine);
+        lines.push(adoptedLine);
+    }
+
+    // fetch paths from document and convert them into lines
+    for(const path of docPaths) {
+        let adoptedPath = SVG.adopt(path) as SVG.Path;
+        let polyline = adoptedPath.toPoly() as SVG.PolyLine;
+        
+        let points = polyline.array().value as unknown as number[][];
+        for(let i = 0; i < points.length - 1; i++) {
+            let x = new SVG.Array();
+            let line = theSVG.line(
+                points[i][0],
+                points[i][1],
+                points[i + 1][0],
+                points[i + 1][1]
+            ).stroke("#000000");
+            lines.push(line);
+        }
+    }
+}
+
 export function onLoad() {
     // set up event handlers
     window.addEventListener("keydown", setShiftDown);
@@ -156,10 +217,12 @@ export function onLoad() {
     //     .call(lineDraw);
 
     // add example resizable rect
-    var rect = theSVG.rect(200,100).move(100,100).fill('#fff')
+    rect = theSVG.rect(200,100).move(100,100).fill('#fff')
     rect.selectize({rotationPoint: false});
     rect.resize();
     rect.draggable();
+
+    lines = [];
 
     {
         // setup rectangle event handling for undo/redo
@@ -273,6 +336,7 @@ export function onLoad() {
             // ignore lines that are too small
             if(svgLineLength(line) < 8) {
                 line.remove();
+                line = null;
                 return;
             }
 
@@ -285,12 +349,15 @@ export function onLoad() {
                 }
                 undo() {
                     this.path.remove();
+                    lines.splice(lines.indexOf(this.path), 1);
                 }
                 redo() {
                     theSVG.add(this.path);
+                    lines.push(this.path);
                 }
             }(line));
 
+            lines.push(line);
             line = null;
         });
     }
