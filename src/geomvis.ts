@@ -368,6 +368,7 @@ export function onLoad() {
         let p = document.createElement("pre");
         p.textContent = line;
         p.classList.add("mb-0"); // remove bottom margin
+        p.classList.add("pseudocode-line");
         if(index == 0)
             p.classList.add("pseudocode-currentline");
         pseudoCodePanel.appendChild(p);
