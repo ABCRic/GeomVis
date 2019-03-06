@@ -115,6 +115,8 @@ function updatePseudoCodeHighlight(oldStep: number) {
     let items = (document.getElementById("pseudocodepanel") as HTMLDivElement).childNodes as NodeListOf<HTMLPreElement>;
     items[oldStep].classList.remove("pseudocode-currentline");
     items[currentStep].classList.add("pseudocode-currentline");
+    let stepTextPanel = document.getElementById("steptextpanel") as HTMLDivElement;
+    stepTextPanel.innerText = pseudoCode[currentStep].stepText;
 }
 
 export function fileSelected() {
@@ -366,11 +368,12 @@ export function onLoad() {
     let pseudoCodePanel = document.getElementById("pseudocodepanel")!;
     pseudoCode.forEach((line, index) => {
         let p = document.createElement("pre");
-        p.textContent = line;
+        p.textContent = line.code;
         p.classList.add("mb-0"); // remove bottom margin
         p.classList.add("pseudocode-line");
         if(index == 0)
             p.classList.add("pseudocode-currentline");
         pseudoCodePanel.appendChild(p);
     });
+    updatePseudoCodeHighlight(0);
 }
