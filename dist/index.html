@@ -46,11 +46,13 @@
             </ul>
         </div>
         <div id="mainpanecontainer" class="col-9" style="background: lightgoldenrodyellow; padding: 0">
-            <div id="hinttext" class="position-absolute text-muted" style="top: 10px">
-                <button id="undobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.undo()" disabled>Undo</button>
-                <button id="redobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.redo()" disabled>Redo</button>
-                Click and drag to draw lines<br>
-                Hold Shift and click and drag the rectangle to move it
+            <div id="topcontainer" class="position-absolute text-muted" style="top: 10px; pointer-events: none">
+                <div id="headerbuttons" style="pointer-events: auto">
+                    <button id="undobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.undo()" disabled>Undo</button>
+                    <button id="redobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.redo()" disabled>Redo</button>
+                </div>
+                <div id="hinttext" style="-moz-user-select: none; -webkit-user-select: none; user-select: none">Click and drag to draw lines<br>
+                Hold Shift and click and drag the rectangle to move it</div>
             </div>
             <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
             <div id="bottompane" class="col-12 position-absolute w-75" style="bottom: 10px; background: #eaf7cf; border-radius: 0.5em; border: 1px solid grey">
