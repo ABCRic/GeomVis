@@ -324,6 +324,7 @@ export function onLoad() {
 
             // start drawing
             line = theSVG.line(0, 0, 0, 0).stroke({color: "black", width: 1}).draw(event, {});
+            return false;
         });
         theSVG.on("mouseup", function(event: MouseEvent) {
             if (!line)
@@ -358,6 +359,16 @@ export function onLoad() {
 
             lines.push(line);
             line = null;
+
+            return false; // prevent propagation so we can listen globally to kill lines outside area
+        });
+        window.addEventListener("mouseup", event => {
+            // mouse was released outside of drawing area. Discard our current line if we have one
+            if (line) {
+                line.draw("stop", event);
+                line.remove();
+                line = null;
+            }
         });
     }
 
