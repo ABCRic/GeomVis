@@ -17,6 +17,7 @@
     "svg.select.js": "^3.0.1"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.7.2",
     "css-loader": "^2.1.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",

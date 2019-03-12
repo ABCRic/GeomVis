@@ -1,5 +1,6 @@
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/js/all.min.js";
 import * as d3 from "d3";
 import * as SVG from "svg.js";
 import "svg.draggable.js";
@@ -107,10 +108,12 @@ function play() {
             clearInterval(id);
         }
     }
+    document.getElementById("playpausebutton")!.innerHTML = "<i class=\"fas fa-pause\"></i> Pause";
 }
 
 function pause() {
     isPlaying = false;
+    document.getElementById("playpausebutton")!.innerHTML = "<i class=\"fas fa-play\"></i> Play";
 }
 
 function updatePseudoCodeHighlight(oldStep: number | null) {

@@ -22,6 +22,10 @@
                 background: yellow;
                 border: 1px solid black;
             }
+
+            .bottompanel-button {
+                width: 110px;
+            }
         </style>
     </head>
     <body id="body" class="row h-100" onload="geomvis.onLoad()">
@@ -48,27 +52,43 @@
         <div id="mainpanecontainer" class="col-9" style="background: lightgoldenrodyellow; padding: 0">
             <div id="topcontainer" class="position-absolute text-muted" style="top: 10px; pointer-events: none">
                 <div id="headerbuttons" style="pointer-events: auto">
-                    <button id="undobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.undo()" disabled>Undo</button>
-                    <button id="redobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.redo()" disabled>Redo</button>
+                    <button id="undobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.undo()" disabled>
+                        <i class="fas fa-undo"></i> Undo
+                    </button>
+                    <button id="redobutton" type="button" class="btn btn-outline-dark" onclick="geomvis.redo()" disabled>
+                        <i class="fas fa-redo"></i> Redo
+                    </button>
                 </div>
                 <div id="hinttext" style="-moz-user-select: none; -webkit-user-select: none; user-select: none">Click and drag to draw lines; Click lines to remove them<br>
                 Hold Shift and click and drag the rectangle to move it</div>
             </div>
             <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
-            <div id="bottompane" class="col-12 position-absolute w-75" style="bottom: 10px; background: #eaf7cf; border-radius: 0.5em; border: 1px solid grey">
-                <div class="row p-1 justify-content-between" style="border-bottom: 1px solid grey">
-                    <div class="col-4">
-                        <button id="loadbutton" type="button" class="btn btn-outline-dark" onclick="fileuploader.click()">Load input</button>
+            <div id="bottompane" class="col-12 position-absolute" style="width: 875px; bottom: 10px; background: #eaf7cf; border-radius: 0.5em; border: 1px solid grey">
+                <div class="row p-1" style="border-bottom: 1px solid grey">
+                    <div class="col-4 btn-group">
+                        <button id="loadbutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="fileuploader.click()">
+                            <i class="fas fa-upload"></i> Load input
+                        </button>
                         <input id="fileuploader" type="file" accept=".svg, .txt" style="display:none" onchange="geomvis.fileSelected()">
-                        <button id="defaultbutton" type="button" class="btn btn-outline-dark">Default input</button>
+                        <button id="defaultbutton" type="button" class="btn btn-outline-dark bottompanel-button">
+                            Default input
+                        </button>
                     </div>
                     <div class="col-4 text-center">
-                        <button id="executebutton" type="button" class="btn btn-outline-dark" onclick="geomvis.computeSteps()">Execute</button>
+                        <button id="executebutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.computeSteps()">
+                            <i class="fas fa-cogs"></i> Execute
+                        </button>
                     </div>
-                    <div class="col-4 text-right">
-                        <button id="backbutton" type="button" class="btn btn-outline-dark" onclick="geomvis.back()">Back</button>
-                        <button id="playpausebutton" type="button" class="btn btn-outline-dark" onclick="geomvis.playPause()">Play/Pause</button>
-                        <button id="forwardbutton" type="button" class="btn btn-outline-dark" onclick="geomvis.forward()">Forward</button>
+                    <div class="col-4 btn-group text-right">
+                        <button id="backbutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.back()">
+                            <i class="fas fa-angle-left"></i> Back
+                        </button>
+                        <button id="playpausebutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.playPause()">
+                            <i class="fas fa-play"></i> Play
+                        </button>
+                        <button id="forwardbutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.forward()">
+                            <i class="fas fa-angle-right"></i> Next
+                        </button>
                     </div>
                 </div>
                 <div class="row">
