@@ -329,22 +329,58 @@ export function onLoad() {
                 return;
             }
 
+            // add ghost line for clicking
+            line.attr("pointer-events", "none");
+            const ghost = line.clone().stroke({width: 5, opacity: 0}).attr("pointer-events", "all").attr("cursor", "pointer") as SVG.Line;
+            theSVG.add(ghost);
+
             // add to history
             pushToUndoHistory(new class extends InputAction {
                 private path: SVG.Line;
-                constructor(path: SVG.Line) {
+                private ghostPath: SVG.Line;
+                constructor(path: SVG.Line, ghostPath: SVG.Line) {
                     super();
                     this.path = path;
+                    this.ghostPath = ghostPath;
                 }
                 public undo() {
                     this.path.remove();
+                    this.ghostPath.remove();
                     lines.splice(lines.indexOf(this.path), 1);
                 }
                 public redo() {
                     theSVG.add(this.path);
+                    theSVG.add(this.ghostPath);
                     lines.push(this.path);
                 }
-            }(line));
+            }(line, ghost));
+
+            {
+                const deleteUndoEvent = new class extends InputAction {
+                    private path: SVG.Line;
+                    private ghostPath: SVG.Line;
+                    constructor(path: SVG.Line, ghostPath: SVG.Line) {
+                        super();
+                        this.path = path;
+                        this.ghostPath = ghostPath;
+                    }
+                    public undo() {
+                        theSVG.add(this.path);
+                        theSVG.add(this.ghostPath);
+                        lines.push(this.path);
+                    }
+                    public redo() {
+                        this.path.remove();
+                        this.ghostPath.remove();
+                        lines.splice(lines.indexOf(this.path), 1);
+                    }
+                }(line, ghost);
+
+                ghost.on("mousedown", function(this: SVG.Line, event: any) {
+                    deleteUndoEvent.redo();
+                    pushToUndoHistory(deleteUndoEvent);
+                });
+            }
 
             lines.push(line);
             line = null;
