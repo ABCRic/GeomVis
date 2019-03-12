@@ -204,33 +204,6 @@ export function onLoad() {
     // fetch D3 object for it
     d3SVG = d3.select("#actualviz");
 
-    // draw some example circles
-    /*const points = [
-        {x: 10, y: 20},
-        {x: 100, y: 50},
-        {x: 200, y: 120},
-        {x: 30, y: 80},
-    ];
-    d3SVG.selectAll("circle")
-        .data(points)
-        .enter()
-        .append("circle")
-        .attr("r", 10)
-        .attr("fill", "purple")
-        .attr("cx", (d: any) => d.x)
-        .attr("cy", (d: any) => d.y);*/
-
-    // // add box for capturing canvas clicks
-    // let clickBox = d3SVG.append("rect")
-    //     .attr("x", 0)
-    //     .attr("y", 0)
-    //     .attr("width", "100%")
-    //     .attr("height", "100%")
-    //     .attr("fill", "white")
-    //     .attr("fill-opacity", 0)
-    //     // with line drawing for cohen-sutherland
-    //     .call(lineDraw);
-
     // add example resizable rect
     rect = theSVG.rect(200, 100).move(100, 100).fill("#fff");
     rect.selectize({rotationPoint: false});
