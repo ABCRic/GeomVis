@@ -1,7 +1,12 @@
+import * as SVG from "svg.js";
 import { Line, Point, Rect } from "./geometrytypes";
+import { VizStep } from "./VizStep";
+import { VizAction } from "./VizAction";
+import { linePoint1, linePoint2 } from "./utils";
+import { SymmetricalVizAction } from "./SymmetricalVizAction";
 
 export const pseudoCode =
-[{code: "for each line", stepText: "We take the following sequence of steps for each line we have to process."},
+[{code: "for each line", stepText: "We take the following sequence of steps for each line we have to process. So we select any line we haven't selected yet."},
  {code: "  outcode1 = outcode(endpoint1)", stepText: "First, we check where one of the ends of the line is, and give it an outcode. Which end we choose first doesn't matter."},
  {code: "  outcode2 = outcode(endpoint2)", stepText: "Then we do the same for the other end of the line."},
  {code: "  if outcode1 | outcode2 == 0", stepText: "We check the outcodes: by using | (bitwise OR) we can quickly check if any of them have any bits set. Because the region of the clipping rectangle is all zeroes, if the result of the bitwise OR is zero then we know both ends of the line are inside the rectangle. Then we can trivially accept it."},
@@ -105,4 +110,71 @@ function cohenSutherland(rect: Rect, lines: Line[]) {
     lines.forEach(line => {
         clipLine(rect, line);
     });
+}
+
+function outcodeToString(outcode: number): string {
+    const str = (outcode >>> 0).toString(2); // to binary string
+    return "0000".substr(str.length) + str; // pad to four digits
+}
+
+class ColorLineAction extends VizAction {
+    private line: SVG.Line;
+
+    constructor(canvas: SVG.Doc, line: SVG.Line) {
+        super(canvas);
+        this.line = line;
+    }
+
+    public stepFromPrevious(): void {
+        this.line.stroke("#ff0000");
+    }
+    public stepToPrevious(): void {
+        throw new Error("Method not implemented.");
+    }
+    public stepToNext(): void {
+        throw new Error("Method not implemented.");
+    }
+    public stepFromNext(): void {
+        throw new Error("Method not implemented.");
+    }
+}
+
+class HighlightPointAction extends SymmetricalVizAction {
+    private point: Point;
+    private circle: SVG.Circle | null = null;
+
+    constructor(canvas: SVG.Doc, point: Point) {
+        super(canvas);
+        this.point = point;
+    }
+
+    public enter(): void {
+        this.circle = this.canvas.circle(5).center(this.point.x, this.point.y);
+    }
+    public exit(): void {
+        this.circle!.remove();
+    }
+}
+
+export function cohenSutherlandComputeSteps(canvas: SVG.Doc, rect: SVG.Rect, lines: SVG.Line[]): VizStep[] {
+    const rectData = new Rect(new Point(rect.x(), rect.y()), new Point(rect.x() + rect.width(), rect.y() + rect.height()));
+
+    const steps: VizStep[] = [];
+    steps.push(new VizStep(0));
+    lines.forEach(line => {
+        const highlightLine = new VizStep(0);
+        highlightLine.acts.push(new ColorLineAction(canvas, line));
+        steps.push(highlightLine);
+
+        const highlightFirstPoint = new VizStep(1);
+        highlightFirstPoint.extraText = "The outcode for this point is " + outcodeToString(computeOutcode(rectData, linePoint1(line)));
+        highlightFirstPoint.acts.push(new HighlightPointAction(canvas, linePoint1(line)));
+        steps.push(highlightFirstPoint);
+
+        const highlightSecondPoint = new VizStep(2);
+        highlightSecondPoint.extraText = "The outcode for this point is " + outcodeToString(computeOutcode(rectData, linePoint2(line)));
+        highlightSecondPoint.acts.push(new HighlightPointAction(canvas, linePoint2(line)));
+        steps.push(highlightSecondPoint);
+    });
+    return steps;
 }

@@ -7,19 +7,20 @@ import "svg.draw.js";
 import "svg.resize.js";
 import "svg.select.js";
 import "svg.select.js/dist/svg.select.css";
-import { pseudoCode } from "./cohensutherland";
+import { pseudoCode, cohenSutherlandComputeSteps } from "./cohensutherland";
 import "./deps/svg.topoly.js";
 import { svgLineLength } from "./utils";
+import { VizStep } from "./VizStep";
 
 const LEFT_MOUSE_BUTTON = 0;
 
-abstract class Action {
+abstract class InputAction {
     public abstract undo(): void;
     public abstract redo(): void;
 }
 
-const undoStack: Action[] = [];
-const redoStack: Action[] = [];
+const undoStack: InputAction[] = [];
+const redoStack: InputAction[] = [];
 
 export function undo() {
     const act = undoStack.pop();
@@ -48,7 +49,7 @@ function updateUndoRedoButtons() {
     redoButton!.disabled = redoStack.length === 0;
 }
 
-function pushToUndoHistory(act: Action) {
+function pushToUndoHistory(act: InputAction) {
     undoStack.push(act);
     redoStack.length = 0;
     updateUndoRedoButtons();
@@ -70,19 +71,23 @@ function setShiftUp(event: KeyboardEvent) {
 let theSVG: SVG.Doc;
 let d3SVG: d3.Selection<d3.BaseType, {}, HTMLElement, any>;
 
-let currentStep = 0;
+let currentStep: number | null = null;
 
 export function forward() {
     const oldStep = currentStep;
-    if (currentStep < pseudoCode.length - 1)
-        currentStep++;
+    currentVizStep++;
+    const newVizStep = steps[currentVizStep];
+    newVizStep.stepFromPrevious();
+    currentStep = newVizStep.codeLine;
     updatePseudoCodeHighlight(oldStep);
 }
 
 export function back() {
     const oldStep = currentStep;
-    if (currentStep > 0)
-        currentStep--;
+    currentVizStep--;
+    const newStep = steps[currentVizStep];
+    newStep.stepFromPrevious();
+    currentStep = newStep.codeLine;
     updatePseudoCodeHighlight(oldStep);
 }
 
@@ -108,12 +113,16 @@ function pause() {
     isPlaying = false;
 }
 
-function updatePseudoCodeHighlight(oldStep: number) {
+function updatePseudoCodeHighlight(oldStep: number | null) {
     const items = (document.getElementById("pseudocodepanel") as HTMLDivElement).childNodes as NodeListOf<HTMLPreElement>;
-    items[oldStep].classList.remove("pseudocode-currentline");
-    items[currentStep].classList.add("pseudocode-currentline");
-    const stepTextPanel = document.getElementById("steptextpanel") as HTMLDivElement;
-    stepTextPanel.innerText = pseudoCode[currentStep].stepText;
+    if (oldStep !== null) {
+        items[oldStep].classList.remove("pseudocode-currentline");
+    }
+    if (currentStep !== null) {
+        items[currentStep].classList.add("pseudocode-currentline");
+        const stepTextPanel = document.getElementById("steptextpanel") as HTMLDivElement;
+        stepTextPanel.innerHTML = pseudoCode[currentStep].stepText + "<br>" + steps[currentVizStep].extraText;
+    }
 }
 
 export function fileSelected() {
@@ -176,6 +185,13 @@ function loadFile(contents: string) {
     }
 }
 
+let steps: VizStep[] = [];
+let currentVizStep = -1;
+
+export function computeSteps() {
+    steps = cohenSutherlandComputeSteps(theSVG, rect, lines);
+}
+
 export function onLoad() {
     // set up event handlers
     window.addEventListener("keydown", setShiftDown);
@@ -231,7 +247,7 @@ export function onLoad() {
             width: number;
             height: number;
         }
-        class RectModifyAction extends Action {
+        class RectModifyAction extends InputAction {
             private oldData: RectData;
             private newData: RectData;
             private target: SVGRectElement;
@@ -341,7 +357,7 @@ export function onLoad() {
             }
 
             // add to history
-            pushToUndoHistory(new class extends Action {
+            pushToUndoHistory(new class extends InputAction {
                 private path: SVG.Line;
                 constructor(path: SVG.Line) {
                     super();
@@ -379,9 +395,7 @@ export function onLoad() {
         p.textContent = line.code;
         p.classList.add("mb-0"); // remove bottom margin
         p.classList.add("pseudocode-line");
-        if (index === 0)
-            p.classList.add("pseudocode-currentline");
         pseudoCodePanel.appendChild(p);
     });
-    updatePseudoCodeHighlight(0);
+    updatePseudoCodeHighlight(null);
 }
