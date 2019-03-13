@@ -1,3 +1,4 @@
+import * as $ from "jquery";
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/js/all.min.js";
@@ -12,6 +13,7 @@ import { pseudoCode, cohenSutherlandComputeSteps } from "./cohensutherland";
 import "./deps/svg.topoly.js";
 import { svgLineLength } from "./utils";
 import { VizStep } from "./VizStep";
+import * as cohenSutherlandExample from "!raw-loader!./inputs/cohen-sutherland-example.svg";
 
 const LEFT_MOUSE_BUTTON = 0;
 
@@ -153,7 +155,11 @@ function loadFile(contents: string) {
     const docLines = doc.getElementsByTagName("line");
     const docPaths = doc.getElementsByTagName("path");
 
-    // todo: clear current document
+    // clear current lines
+    lines.forEach(line => {
+        line.remove();
+    });
+    lines.length = 0;
 
     // adapt our rect to first rect in document
     const adoptedRect = SVG.adopt(docRect);
@@ -165,8 +171,10 @@ function loadFile(contents: string) {
     // fetch lines from document
     for (const line of docLines) {
         const adoptedLine = SVG.adopt(line) as SVG.Line;
-        theSVG.add(adoptedLine);
-        lines.push(adoptedLine);
+        const points = adoptedLine.array().toLine();
+        const newLine = theSVG.line(points.x1, points.y1, points.x2, points.y2).stroke("#000000");
+        theSVG.add(newLine);
+        lines.push(newLine);
     }
 
     // fetch paths from document and convert them into lines
@@ -176,7 +184,6 @@ function loadFile(contents: string) {
 
         const points = polyline.array().value as unknown as number[][];
         for (let i = 0; i < points.length - 1; i++) {
-            const x = new SVG.Array();
             const line = theSVG.line(
                 points[i][0],
                 points[i][1],
@@ -193,6 +200,22 @@ let currentVizStep = -1;
 
 export function computeSteps() {
     steps = cohenSutherlandComputeSteps(theSVG, rect, lines);
+}
+
+let discardModalConfirmAction: ((() => void) | null) = null;
+
+export function defaultInput() {
+    discardModalConfirmAction = () => {
+        loadFile(cohenSutherlandExample);
+    };
+    $("#confirmDiscardModal").modal();
+}
+
+export function discardModalConfirm() {
+    if (discardModalConfirmAction !== null) {
+        discardModalConfirmAction();
+        discardModalConfirmAction = null;
+    }
 }
 
 export function onLoad() {

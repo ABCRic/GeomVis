@@ -29,6 +29,28 @@
         </style>
     </head>
     <body id="body" class="row h-100" onload="geomvis.onLoad()">
+        <!-- confirm discard current contents modal -->
+        <div class="modal fade" id="confirmDiscardModal" tabindex="-1" role="dialog" aria-labelledby="confirmDiscardModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmDiscardModal">Are you sure you want load a different input?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Current input will be lost.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="geomvis.discardModalConfirm()">Discard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- algorithm picker -->
         <div id="leftpane" class="col-3" style="background: #bacdb0">
             <h1 id="title" class="display-3 text-center">GeomVis</h1>
             <ul class="list-group">
@@ -49,6 +71,8 @@
                 </li>
             </ul>
         </div>
+
+        <!-- main content -->
         <div id="mainpanecontainer" class="col-9" style="background: lightgoldenrodyellow; padding: 0">
             <div id="topcontainer" class="position-absolute text-muted" style="top: 10px; pointer-events: none">
                 <div id="headerbuttons" style="pointer-events: auto">
@@ -70,7 +94,7 @@
                             <i class="fas fa-upload"></i> Load input
                         </button>
                         <input id="fileuploader" type="file" accept=".svg, .txt" style="display:none" onchange="geomvis.fileSelected()">
-                        <button id="defaultbutton" type="button" class="btn btn-outline-dark bottompanel-button">
+                        <button id="defaultbutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.defaultInput()">
                             Default input
                         </button>
                     </div>
