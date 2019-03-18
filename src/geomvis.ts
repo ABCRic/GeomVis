@@ -78,6 +78,12 @@ let currentStep: number | null = null;
 
 export function forward() {
     const oldStep = currentStep;
+
+    // step out of current step
+    if (steps[currentVizStep])
+        steps[currentVizStep].stepToNext();
+
+    // step into next step
     currentVizStep++;
     const newVizStep = steps[currentVizStep];
     newVizStep.stepFromPrevious();
@@ -87,9 +93,15 @@ export function forward() {
 
 export function back() {
     const oldStep = currentStep;
+
+    // step back out of current step
+    if (steps[currentVizStep])
+        steps[currentVizStep].stepToPrevious();
+
+    // step into previous step
     currentVizStep--;
     const newStep = steps[currentVizStep];
-    newStep.stepFromPrevious();
+    newStep.stepFromNext();
     currentStep = newStep.codeLine;
     updatePseudoCodeHighlight(oldStep);
 }
