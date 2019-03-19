@@ -132,7 +132,7 @@ class ColorLineAction extends EntryOnlyVizAction {
     }
 
     public stepFromPrevious(): void {
-        this.line.stroke(this.toColor);
+        this.line.animate(250).stroke(this.toColor);
     }
     public stepToPrevious(): void {
         this.line.stroke(this.fromColor);
@@ -149,7 +149,8 @@ class HighlightPointAction extends SymmetricalVizAction {
     }
 
     public enter(): void {
-        this.circle = this.canvas.circle(5).center(this.point.x, this.point.y);
+        this.circle = this.canvas.circle(25).center(this.point.x, this.point.y);
+        this.circle.animate(500, "<").size(7.5, 7.5);
     }
     public exit(): void {
         this.circle!.remove();
@@ -164,10 +165,11 @@ class DeleteLineAction extends EntryOnlyVizAction {
         this.line = line;
     }
     public stepFromPrevious() {
-        this.line.remove();
+        this.line.animate(500).attr("stroke-opacity", 0).after(() => this.line.remove());
     }
     public stepToPrevious() {
         this.canvas.add(this.line);
+        this.line.attr("stroke-opacity", 1);
     }
 }
 
