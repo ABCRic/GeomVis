@@ -58,19 +58,6 @@ function pushToUndoHistory(act: InputAction) {
     updateUndoRedoButtons();
 }
 
-let shiftDown = false;
-function setShiftDown(event: KeyboardEvent) {
-    if (event.keyCode === 16 || event.charCode === 16) {
-        shiftDown = true;
-    }
-}
-
-function setShiftUp(event: KeyboardEvent) {
-    if (event.keyCode === 16 || event.charCode === 16) {
-        shiftDown = false;
-    }
-}
-
 let theSVG: SVG.Doc;
 let d3SVG: d3.Selection<d3.BaseType, {}, HTMLElement, any>;
 
@@ -261,10 +248,6 @@ function updateGuidelines() {
 }
 
 export function onLoad() {
-    // set up event handlers
-    window.addEventListener("keydown", setShiftDown);
-    window.addEventListener("keyup", setShiftUp);
-
     // create the SVG
     theSVG = SVG("vizcontainer").size("100%", "100%").attr("id", "actualviz").attr("color", "#ffffff");
     console.log(theSVG);
@@ -363,7 +346,7 @@ export function onLoad() {
 
         rect.on("beforedrag", function(this: SVG.Rect, event: any) {
             // drag only if shift is pressed
-            if (!shiftDown) {
+            if (!(event.detail.event as MouseEvent).shiftKey) {
                 event.preventDefault();
                 return;
             }
