@@ -192,6 +192,25 @@ export function cohenSutherlandComputeSteps(canvas: SVG.Doc, rect: SVG.Rect, lin
     return steps;
 }
 
+class ShowTextAction extends EntryOnlyVizAction {
+    private point: Point;
+    private text: string;
+    private textElement: SVG.Text | undefined;
+
+    constructor(canvas: SVG.Doc, point: Point, text: string) {
+        super(canvas);
+        this.point = point;
+        this.text = text;
+    }
+
+    public stepFromPrevious(): void {
+        this.textElement = this.canvas.text(this.text).x(this.point.x).y(this.point.y);
+    }
+    public stepToPrevious(): void {
+        this.textElement!.remove();
+    }
+}
+
 function generateStepsForLine(canvas: SVG.Doc, rectData: Rect, line: SVG.Line, lineData: Line): VizStep[] {
     const steps: VizStep[] = [];
 
@@ -200,6 +219,8 @@ function generateStepsForLine(canvas: SVG.Doc, rectData: Rect, line: SVG.Line, l
     const firstPointOutcode = computeOutcode(rectData, lineData.p1);
     highlightFirstPoint.extraText = "The outcode for this point is " + outcodeToString(firstPointOutcode);
     highlightFirstPoint.acts.push(new HighlightPointAction(canvas, lineData.p1));
+    const showFirstOutpoint = new ShowTextAction(canvas, lineData.p1, outcodeToString(firstPointOutcode));
+    highlightFirstPoint.acts.push(showFirstOutpoint);
     steps.push(highlightFirstPoint);
 
     // highlight the other point and show its outcode
@@ -207,6 +228,8 @@ function generateStepsForLine(canvas: SVG.Doc, rectData: Rect, line: SVG.Line, l
     const secondPointOutcode = computeOutcode(rectData, lineData.p2);
     highlightSecondPoint.extraText = "The outcode for this point is " + outcodeToString(secondPointOutcode);
     highlightSecondPoint.acts.push(new HighlightPointAction(canvas, lineData.p2));
+    const showSecondOutpoint = new ShowTextAction(canvas, lineData.p2, outcodeToString(secondPointOutcode));
+    highlightSecondPoint.acts.push(showSecondOutpoint);
     steps.push(highlightSecondPoint);
 
     // check for trivial accept
@@ -219,6 +242,8 @@ function generateStepsForLine(canvas: SVG.Doc, rectData: Rect, line: SVG.Line, l
         // we are accepting trivially - highlight acceptance and continue on to next line.
         const trivialAcceptPassed = new VizStep(4);
         trivialAcceptPassed.acts.push(new ColorLineAction(canvas, line, "#ff0000", "#00aa00"));
+        trivialAcceptPassed.acts.push(showFirstOutpoint.getReverse());
+        trivialAcceptPassed.acts.push(showSecondOutpoint.getReverse());
         steps.push(trivialAcceptPassed);
         return steps;
     }
@@ -237,6 +262,8 @@ function generateStepsForLine(canvas: SVG.Doc, rectData: Rect, line: SVG.Line, l
 
         // continue on to next line
         const trivialRejectToNextLine = new VizStep(7);
+        trivialRejectToNextLine.acts.push(showFirstOutpoint.getReverse());
+        trivialRejectToNextLine.acts.push(showSecondOutpoint.getReverse());
         steps.push(trivialRejectToNextLine);
         return steps;
     }
@@ -287,6 +314,8 @@ function generateStepsForLine(canvas: SVG.Doc, rectData: Rect, line: SVG.Line, l
     steps.push(clipLineStep);
 
     const backToStart = new VizStep(10);
+    backToStart.acts.push(showFirstOutpoint.getReverse());
+    backToStart.acts.push(showSecondOutpoint.getReverse());
     steps.push(backToStart);
 
     // return current iteration steps plus the steps for the next iteration over the line

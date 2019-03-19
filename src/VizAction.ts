@@ -6,6 +6,8 @@ export abstract class VizAction {
         this.canvas = canvas;
     }
 
+    public getCanvas(): SVG.Doc { return this.canvas; }
+
     public abstract stepFromPrevious(): void;
     public abstract stepToNext(): void;
 
