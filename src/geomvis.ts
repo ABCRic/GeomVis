@@ -205,6 +205,7 @@ function loadFile(contents: string) {
             lines.push(line);
         }
     }
+    updateGuidelines();
 }
 
 let steps: VizStep[] = [];
@@ -230,6 +231,35 @@ export function discardModalConfirm() {
     }
 }
 
+let leftGuideline: SVG.Line;
+let rightGuideline: SVG.Line;
+let topGuideline: SVG.Line;
+let bottomGuideline: SVG.Line;
+
+function updateGuidelines() {
+    const guidlinePadding = 10000;
+    leftGuideline.plot(
+        rect.x(),
+        rect.y() + rect.height() + guidlinePadding,
+        rect.x(),
+        rect.y() - guidlinePadding);
+    rightGuideline.plot(
+        rect.x() + rect.width(),
+        rect.y() + rect.height() + guidlinePadding,
+        rect.x() + rect.width(),
+        rect.y() - guidlinePadding);
+    topGuideline.plot(
+        rect.x() - guidlinePadding,
+        rect.y(),
+        rect.x() + rect.width() + guidlinePadding,
+        rect.y());
+    bottomGuideline.plot(
+        rect.x() - guidlinePadding,
+        rect.y() + rect.height(),
+        rect.x() + rect.width() + guidlinePadding,
+        rect.y() + rect.height());
+}
+
 export function onLoad() {
     // set up event handlers
     window.addEventListener("keydown", setShiftDown);
@@ -242,11 +272,30 @@ export function onLoad() {
     // fetch D3 object for it
     d3SVG = d3.select("#actualviz");
 
-    // add example resizable rect
+    // add resizable rect
     rect = theSVG.rect(200, 100).move(100, 100).fill("#fff");
     rect.selectize({rotationPoint: false});
     rect.resize();
     rect.draggable();
+
+    // add region guidelines
+    const guideLineStroke: SVG.StrokeData = {
+        dasharray: "8",
+        color: "black"
+    };
+    leftGuideline = theSVG
+        .line(0, 0, 0, 0)
+        .stroke(guideLineStroke);
+    rightGuideline = theSVG
+        .line(0, 0, 0, 0)
+        .stroke(guideLineStroke);
+    topGuideline = theSVG
+        .line(0, 0, 0, 0)
+        .stroke(guideLineStroke);
+    bottomGuideline = theSVG
+        .line(0, 0, 0, 0)
+        .stroke(guideLineStroke);
+    updateGuidelines();
 
     lines = [];
 
@@ -274,6 +323,7 @@ export function onLoad() {
                 adopted.attr("y", this.oldData.y);
                 adopted.attr("width", this.oldData.width);
                 adopted.attr("height", this.oldData.height);
+                updateGuidelines();
             }
             public redo() {
                 const adopted = SVG.adopt(this.target);
@@ -281,6 +331,7 @@ export function onLoad() {
                 adopted.attr("y", this.newData.y);
                 adopted.attr("width", this.newData.width);
                 adopted.attr("height", this.newData.height);
+                updateGuidelines();
             }
         }
 
@@ -303,9 +354,11 @@ export function onLoad() {
                 width: adopted.width(),
                 height: adopted.height(),
             };
+            updateGuidelines();
         });
         rect.on("resizedone", (event: any) => {
             pushToUndoHistory(new RectModifyAction(oldData, newData, event.target));
+            updateGuidelines();
         });
 
         rect.on("beforedrag", function(this: SVG.Rect, event: any) {
@@ -330,6 +383,8 @@ export function onLoad() {
             };
         });
 
+        rect.on("dragmove", updateGuidelines);
+
         rect.on("dragend", function(this: SVG.Rect, event: any) {
             newData = {
                 x: this.x(),
@@ -337,6 +392,7 @@ export function onLoad() {
                 width: this.width(),
                 height: this.height(),
             };
+            updateGuidelines();
             pushToUndoHistory(new RectModifyAction(oldData, newData, event.target));
         });
     }
