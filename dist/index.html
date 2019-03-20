@@ -24,7 +24,7 @@
             }
 
             .bottompanel-button {
-                width: 110px;
+                width: 120px;
             }
         </style>
     </head>
@@ -44,7 +44,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="geomvis.discardModalConfirm()">Discard</button>
+                        <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="geomvis.discardModalConfirm()">Discard and load</button>
                     </div>
                 </div>
             </div>
@@ -100,17 +100,17 @@
                     </div>
                     <div class="col-4 text-center">
                         <button id="executebutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.computeSteps()">
-                            <i class="fas fa-cogs"></i> Execute
+                            <i class="fas fa-cogs"></i> Compute
                         </button>
                     </div>
                     <div class="col-4 btn-group text-right">
-                        <button id="backbutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.back()">
+                        <button id="backbutton" type="button" class="btn btn-outline-dark bottompanel-button" disabled onclick="geomvis.back()">
                             <i class="fas fa-angle-left"></i> Back
                         </button>
-                        <button id="playpausebutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.playPause()">
+                        <button id="playpausebutton" type="button" class="btn btn-outline-dark bottompanel-button" disabled onclick="geomvis.playPause()">
                             <i class="fas fa-play"></i> Play
                         </button>
-                        <button id="forwardbutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.forward()">
+                        <button id="forwardbutton" type="button" class="btn btn-outline-dark bottompanel-button" disabled onclick="geomvis.forward()">
                             <i class="fas fa-angle-right"></i> Next
                         </button>
                     </div>

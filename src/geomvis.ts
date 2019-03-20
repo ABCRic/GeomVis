@@ -47,9 +47,9 @@ export function redo() {
 
 function updateUndoRedoButtons() {
     const undoButton = document.getElementById("undobutton") as HTMLButtonElement;
-    undoButton!.disabled = undoStack.length === 0;
+    undoButton.disabled = undoStack.length === 0;
     const redoButton = document.getElementById("redobutton") as HTMLButtonElement;
-    redoButton!.disabled = redoStack.length === 0;
+    redoButton.disabled = redoStack.length === 0;
 }
 
 function pushToUndoHistory(act: InputAction) {
@@ -125,7 +125,10 @@ function updatePseudoCodeHighlight(oldStep: number | null) {
     if (currentStep !== null) {
         items[currentStep].classList.add("pseudocode-currentline");
         const stepTextPanel = document.getElementById("steptextpanel") as HTMLDivElement;
-        stepTextPanel.innerHTML = pseudoCode[currentStep].stepText + "<br>" + steps[currentVizStep].extraText;
+        let text = pseudoCode[currentStep].stepText;
+        if (steps[currentVizStep].extraText !== null)
+            text += "<br>" + steps[currentVizStep].extraText;
+        stepTextPanel.innerHTML = text;
     }
 }
 
@@ -200,6 +203,9 @@ let currentVizStep = -1;
 
 export function computeSteps() {
     steps = cohenSutherlandComputeSteps(theSVG, rect, lines);
+    (document.getElementById("backbutton") as HTMLButtonElement).disabled = false;
+    (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = false;
+    (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = false;
 }
 
 let discardModalConfirmAction: ((() => void) | null) = null;
