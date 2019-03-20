@@ -10,12 +10,12 @@ export const pseudoCode =
  {code: "  outcode1 = outcode(endpoint1)", stepText: "First, we check where one of the ends of the line is, and give it an outcode. Which end we choose first doesn't matter."},
  {code: "  outcode2 = outcode(endpoint2)", stepText: "Then we do the same for the other end of the line."},
  {code: "  if outcode1 | outcode2 == 0", stepText: "We check the outcodes: by using | (bitwise OR) we can quickly check if any of them have any bits set. Because the region of the clipping rectangle is all zeroes, if the result of the bitwise OR is zero then we know both ends of the line are inside the rectangle. Then we can trivially accept it."},
- {code: "    goto next line", stepText: "Since the whole line is inside the rectangle, we don't know to do anything and can start processing the next line."},
+ {code: "    goto next line", stepText: "Since the whole line is inside the rectangle, we don't need to do anything and can start processing the next line."},
  {code: "  if outcode1 & outcode2 != 0", stepText: "We check the outcodes again: by using & (bitwise AND) we can compare every bit of the outcode, each corresponding to one outside zone. If both ends of the line are in the same zone, they will have a common bit set, which means the line is outside the rectangle. Then we can trivially reject it."},
  {code: "    delete line", stepText: "Since we detected the line was outside the rectangle, we remove it entirely."},
  {code: "    goto next line", stepText: "Then we start processing the next line."},
  {code: "  pick a point that's outside", stepText: "Since the line was neither fully inside nor fully outside, we need to clip an outside portion. Select an end point of the line that's outside. If both are outside, we can choose either one. We can check if an end point is outside by checking if its outcode is different than zero."},
- {code: "  replace it with the rectangle intersection point", stepText: "Use the straight line equation, Y = slope * X + base, to find the point of the line where it intersects the sides of the rectangle. We do this for both the X and Y axes. Then we replace the point we chose with this new point."},
+ {code: "  replace it with the rectangle intersection point", stepText: "Use the straight line equation, Y = slope * X + base, to find the point of the line where it intersects with one of the region borders defined by the sides of the rectangle. Then we replace the point we chose with this new point."},
  {code: "  back to start of loop", stepText: "We've clipped a portion of the line, so now we have a new line. We go back to the start of the loop and process this new line."}];
 
 const OUTCODE_INSIDE = 0;
