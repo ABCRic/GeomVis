@@ -149,7 +149,7 @@ class HighlightPointAction extends SymmetricalVizAction {
     }
 
     public enter(): void {
-        this.circle = this.canvas.circle(25).center(this.point.x, this.point.y);
+        this.circle = this.canvas.circle(25).center(this.point.x, this.point.y).fill("#29d8db");
         this.circle.animate(500, "<").size(7.5, 7.5);
     }
     public exit(): void {
@@ -183,7 +183,7 @@ export function cohenSutherlandComputeSteps(canvas: SVG.Doc, rect: SVG.Rect, lin
 
         // highlight the line
         const highlightLine = new VizStep(0);
-        highlightLine.acts.push(new ColorLineAction(canvas, line, "#000000", "#ff0000"));
+        highlightLine.acts.push(new ColorLineAction(canvas, line, "#000000", "#29d8db"));
         steps.push(highlightLine);
 
         // add all the steps for the body of the loop of this line
@@ -241,7 +241,7 @@ function generateStepsForLine(canvas: SVG.Doc, rectData: Rect, line: SVG.Line, l
     if ((firstPointOutcode | secondPointOutcode) === 0) {
         // we are accepting trivially - highlight acceptance and continue on to next line.
         const trivialAcceptPassed = new VizStep(4);
-        trivialAcceptPassed.acts.push(new ColorLineAction(canvas, line, "#ff0000", "#00aa00"));
+        trivialAcceptPassed.acts.push(new ColorLineAction(canvas, line, "#29d8db", "#00aa00"));
         trivialAcceptPassed.acts.push(showFirstOutpoint.getReverse());
         trivialAcceptPassed.acts.push(showSecondOutpoint.getReverse());
         steps.push(trivialAcceptPassed);
