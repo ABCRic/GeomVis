@@ -345,15 +345,19 @@ export function onLoad() {
     leftGuideline = theSVG
         .line(0, 0, 0, 0)
         .stroke(guideLineStroke);
+    rect.before(leftGuideline);
     rightGuideline = theSVG
         .line(0, 0, 0, 0)
         .stroke(guideLineStroke);
+    rect.before(rightGuideline);
     topGuideline = theSVG
         .line(0, 0, 0, 0)
         .stroke(guideLineStroke);
+    rect.before(topGuideline);
     bottomGuideline = theSVG
         .line(0, 0, 0, 0)
         .stroke(guideLineStroke);
+    rect.before(bottomGuideline);
     updateGuidelines();
 
     lines = [];
