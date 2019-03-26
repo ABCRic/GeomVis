@@ -308,10 +308,18 @@ function addAlgorithm(name: string, description: string, examples: AlgorithmExam
     document.querySelector("#algorithmAccordion")!.appendChild(clone);
 }
 
+function updateSVGViewbox() {
+    theSVG.viewbox(
+        //-document.getElementById("leftpane")!.offsetWidth // TODO: uncomment this after make left pane collapsible
+    -500, -100, window.innerWidth, window.innerHeight);
+}
+
 export function onLoad() {
     // create the SVG
     theSVG = SVG("vizcontainer").size("100%", "100%").attr("id", "actualviz").attr("color", "#ffffff");
-    console.log(theSVG);
+    theSVG.attr("preserveAspectRatio", "xMidYMid slice");
+    window.addEventListener("resize", updateSVGViewbox);
+    updateSVGViewbox();
 
     // fetch D3 object for it
     d3SVG = d3.select("#actualviz");
