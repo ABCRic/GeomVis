@@ -50,26 +50,58 @@
             </div>
         </div>
 
-        <!-- algorithm picker -->
-        <div id="leftpane" class="col-3" style="background: #bacdb0">
+        <!-- loading modal -->
+        <div class="modal fade" id="loadingModal" tabindex="-2" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="container-fluid d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- left pane -->
+        <div id="leftpane" class="col-3" style="background: #bacdb0; padding-left: 30px">
             <h1 id="title" class="display-3 text-center">GeomVis</h1>
-            <ul class="list-group">
-                <li class="list-group-item">
-                    <div>Convex hull</div>
-                </li>
-                <li class="list-group-item">
-                    <div>Line Segment Intersection</div>
-                </li>
-                <li class="list-group-item">
-                    <div>Point in Polygon</div>
-                </li>
-                <li class="list-group-item">
-                    <div>Cohen-Sutherland</div>
-                </li>
-                <li class="list-group-item">
-                    <div>Sutherland-Hodgman</div>
-                </li>
-            </ul>
+
+            <!-- template for each algorithm on the list -->
+            <template id="algorithmTemplate">
+                <div class="card">
+                    <div class="card-header" id="algoHeaderPlaceholder">
+                        <h2 class="mb-0">
+                            <button id="algoButtonPlaceholder" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#algoCollapsePlaceholder"
+                                aria-expanded="false" aria-controls="collapseOne">
+                                algorithm name
+                            </button>
+                        </h2>
+                    </div>
+            
+                    <div id="algoCollapsePlaceholder" class="collapse" aria-labelledby="headingOne" data-parent="#algorithmAccordion">
+                        <div id="algoBody" class="card-body">
+                            <p id="algoText">algorithm description</p>
+
+                            <h5>Examples</h5>
+                            <div id="algoExamplesContainer" class="row">
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- template for each algorithm example -->
+            <template id="algoExampleTemplate">
+                <div class="w-50 p-1">
+                    <div class="card m-1">
+                        <img class="card-img-top">
+                    </div>
+                </div>
+            </template>
+
+            <!-- algorithm picker -->
+            <div class="accordion" id="algorithmAccordion">
+            </div>
         </div>
 
         <!-- main content -->

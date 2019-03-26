@@ -151,6 +151,26 @@ export function fileSelected() {
 let rect: SVG.Rect;
 let lines: SVG.Line[];
 
+function loadExample(path: string) {
+    console.log("Loading example from " + path);
+    $("#loadingModal").modal("show");
+    getFile(path, responseText => {
+        loadFile(responseText);
+        $("#loadingModal").on("shown.bs.modal",
+            () => $("#loadingModal").modal("hide")
+        ).modal("hide");
+    });
+}
+
+function getFile(path: string, callback: (responseText: string) => void) {
+    const client = new XMLHttpRequest();
+    client.open("GET", path);
+    client.onloadend = function() {
+        callback(client.responseText);
+    };
+    client.send();
+}
+
 function loadFile(contents: string) {
     const doc = new DOMParser().parseFromString(contents, "image/svg+xml");
     const docRect = doc.getElementsByTagName("rect")[0];
@@ -253,6 +273,41 @@ function updateGuidelines() {
         rect.y() + rect.height());
 }
 
+let algorithmNum = 0;
+function addAlgorithm(name: string, description: string, examples: AlgorithmExample[]) {
+    const template = document.getElementById("algorithmTemplate") as HTMLTemplateElement;
+
+    // instance algorithm template and fill
+    algorithmNum++;
+    const clone = document.importNode(template.content, true);
+    clone.querySelector("#algoHeaderPlaceholder")!.id = "algoHeader" + algorithmNum;
+    const algoButton = clone.querySelector("#algoButtonPlaceholder") as HTMLButtonElement;
+    algoButton.id = "algoButton" + algorithmNum;
+    algoButton.setAttribute("data-target", "#algoCollapse" + algorithmNum);
+    algoButton.setAttribute("aria-controls", "#algoCollapse" + algorithmNum);
+    algoButton.textContent = name;
+    const algoCollapse = clone.querySelector("#algoCollapsePlaceholder") as HTMLDivElement;
+    algoCollapse.id = "algoCollapse" + algorithmNum;
+    algoCollapse.setAttribute("aria-labelledby", "algoHeader" + algorithmNum);
+    const algoText = algoCollapse.querySelector("#algoText") as HTMLDivElement;
+    algoText.textContent = description;
+
+    // fill examples
+    const exampleTemplate = document.getElementById("algoExampleTemplate") as HTMLTemplateElement;
+    const examplesContainer = clone.querySelector("#algoExamplesContainer") as HTMLDivElement;
+    for (const example of examples) {
+        const exampleClone = document.importNode(exampleTemplate.content, true);
+
+        exampleClone.querySelector("img")!.src = example.imagePath;
+        exampleClone.querySelector("div")!.onclick = () => loadExample(example.inputPath);
+
+        examplesContainer.appendChild(exampleClone);
+    }
+
+    // add to page
+    document.querySelector("#algorithmAccordion")!.appendChild(clone);
+}
+
 export function onLoad() {
     // create the SVG
     theSVG = SVG("vizcontainer").size("100%", "100%").attr("id", "actualviz").attr("color", "#ffffff");
@@ -260,6 +315,21 @@ export function onLoad() {
 
     // fetch D3 object for it
     d3SVG = d3.select("#actualviz");
+
+    // add algorithms to left pane
+    addAlgorithm("Convex Hull", "WIP", []);
+    addAlgorithm("Line Segment Intersection", "WIP", []);
+    addAlgorithm("Point in Polygon", "WIP", []);
+    addAlgorithm("Cohen-Sutherland", "Clips lines into a polygon.", [
+        {
+            imagePath: "inputs/cohensutherland/example1.png",
+            inputPath: "inputs/cohensutherland/example1.svg"
+        }
+    ]);
+    addAlgorithm("Sutherland-Hodgman", "WIP", []);
+
+    // show one
+    $("#algoButton4").click();
 
     // add resizable rect
     rect = theSVG.rect(200, 100).move(100, 100).fill("#fff");
