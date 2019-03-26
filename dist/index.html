@@ -89,7 +89,7 @@
                         </h2>
                     </div>
             
-                    <div id="algoCollapsePlaceholder" class="collapse" aria-labelledby="headingOne" data-parent="#algorithmAccordion">
+                    <div id="algoCollapsePlaceholder" class="collapse" aria-labelledby="headingOne" data-parent="#algorithmAccordion" style="max-height: 500px; overflow: auto">
                         <div id="algoBody" class="card-body">
                             <p id="algoText">algorithm description</p>
 
@@ -105,8 +105,11 @@
             <!-- template for each algorithm example -->
             <template id="algoExampleTemplate">
                 <div class="w-50 p-1">
-                    <div class="card m-1">
-                        <img class="card-img-top">
+                    <div class="card m-1 h-100">
+                        <img class="card-img-top h-75 border-bottom">
+                        <div class="card-body">
+                            card text
+                        </div>
                     </div>
                 </div>
             </template>

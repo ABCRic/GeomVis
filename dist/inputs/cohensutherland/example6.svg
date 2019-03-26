@@ -15,7 +15,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="example1.svg">
+   sodipodi:docname="example6.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="617.68779"
-     inkscape:cy="542.0976"
+     inkscape:zoom="0.7"
+     inkscape:cx="441.44105"
+     inkscape:cy="397.7068"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -37,8 +37,7 @@
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      units="mm"
-     showborder="false"
-     showguides="false" />
+     showborder="false" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -57,16 +56,26 @@
      id="layer1"
      transform="translate(-46.106086,-108.73627)">
     <rect
-       style="opacity:0.95;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.77883029;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       style="opacity:0.95;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.62594181;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        id="rect4504"
-       width="285.85751"
-       height="157.13559"
-       x="96.351112"
-       y="108.25599" />
+       width="243.53709"
+       height="119.13555"
+       x="53.336708"
+       y="133.11464" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-       d="M 1.5048942,-8.0893309 266.84418,152.92853"
-       id="path4510"
+       d="M -11.089591,200.91497 396.76369,170.44625"
+       id="path1971"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 380.21447,69.439855 10.847998,296.61894"
+       id="path1975"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 113.99254,73.160139 156.75567,313.70271"
+       id="path1979"
        inkscape:connector-curvature="0" />
   </g>
 </svg>

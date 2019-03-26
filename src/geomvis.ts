@@ -301,6 +301,9 @@ function addAlgorithm(name: string, description: string, examples: AlgorithmExam
         exampleClone.querySelector("img")!.src = example.imagePath;
         exampleClone.querySelector("div")!.onclick = () => loadExample(example.inputPath);
 
+        if (example.name !== null)
+            exampleClone.querySelector(".card-body")!.textContent = example.name;
+
         examplesContainer.appendChild(exampleClone);
     }
 
@@ -331,7 +334,33 @@ export function onLoad() {
     addAlgorithm("Cohen-Sutherland", "Clips lines into a polygon.", [
         {
             imagePath: "inputs/cohensutherland/example1.png",
-            inputPath: "inputs/cohensutherland/example1.svg"
+            inputPath: "inputs/cohensutherland/example1.svg",
+            name: "Example 1"
+        },
+        {
+            imagePath: "inputs/cohensutherland/example2.png",
+            inputPath: "inputs/cohensutherland/example2.svg",
+            name: "Example 2"
+        },
+        {
+            imagePath: "inputs/cohensutherland/example3.png",
+            inputPath: "inputs/cohensutherland/example3.svg",
+            name: "Example 3"
+        },
+        {
+            imagePath: "inputs/cohensutherland/example4.png",
+            inputPath: "inputs/cohensutherland/example4.svg",
+            name: "Example 4"
+        },
+        {
+            imagePath: "inputs/cohensutherland/example5.png",
+            inputPath: "inputs/cohensutherland/example5.svg",
+            name: "Example 5"
+        },
+        {
+            imagePath: "inputs/cohensutherland/example6.png",
+            inputPath: "inputs/cohensutherland/example6.svg",
+            name: "Example 6"
         }
     ]);
     addAlgorithm("Sutherland-Hodgman", "WIP", []);
