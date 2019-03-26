@@ -13,7 +13,6 @@ import { pseudoCode, cohenSutherlandComputeSteps } from "./cohensutherland";
 import "./deps/svg.topoly.js";
 import { svgLineLength } from "./utils";
 import { VizStep } from "./VizStep";
-import * as cohenSutherlandExample from "!raw-loader!./inputs/cohen-sutherland-example.svg";
 
 const LEFT_MOUSE_BUTTON = 0;
 
@@ -151,6 +150,13 @@ export function fileSelected() {
 let rect: SVG.Rect;
 let lines: SVG.Line[];
 
+function promptLoadExample(path: string) {
+    discardModalConfirmAction = () => {
+        loadExample(path);
+    };
+    $("#confirmDiscardModal").modal();
+}
+
 function loadExample(path: string) {
     console.log("Loading example from " + path);
     $("#loadingModal").modal("show");
@@ -230,13 +236,6 @@ export function computeSteps() {
 
 let discardModalConfirmAction: ((() => void) | null) = null;
 
-export function defaultInput() {
-    discardModalConfirmAction = () => {
-        loadFile(cohenSutherlandExample);
-    };
-    $("#confirmDiscardModal").modal();
-}
-
 export function discardModalConfirm() {
     if (discardModalConfirmAction !== null) {
         discardModalConfirmAction();
@@ -299,7 +298,7 @@ function addAlgorithm(name: string, description: string, examples: AlgorithmExam
         const exampleClone = document.importNode(exampleTemplate.content, true);
 
         exampleClone.querySelector("img")!.src = example.imagePath;
-        exampleClone.querySelector("div")!.onclick = () => loadExample(example.inputPath);
+        exampleClone.querySelector("div")!.onclick = () => promptLoadExample(example.inputPath);
 
         if (example.name !== null)
             exampleClone.querySelector(".card-body")!.textContent = example.name;

@@ -136,14 +136,11 @@
             <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
             <div id="bottompane" class="col-12 position-absolute" style="width: 875px; bottom: 10px; background: #eaf7cf; border-radius: 0.5em; border: 1px solid grey">
                 <div class="row p-1" style="border-bottom: 1px solid grey">
-                    <div class="col-4 btn-group">
-                        <button id="loadbutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="fileuploader.click()">
+                    <div class="col-4">
+                        <button id="loadbutton" type="button" class="btn btn-outline-dark bottompanel-button w-50" onclick="fileuploader.click()">
                             <i class="fas fa-upload"></i> Load input
                         </button>
                         <input id="fileuploader" type="file" accept=".svg, .txt" style="display:none" onchange="geomvis.fileSelected()">
-                        <button id="defaultbutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.defaultInput()">
-                            Default input
-                        </button>
                     </div>
                     <div class="col-4 text-center">
                         <button id="executebutton" type="button" class="btn btn-outline-dark bottompanel-button" onclick="geomvis.computeSteps()">
