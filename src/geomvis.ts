@@ -13,13 +13,13 @@ import { pseudoCode, cohenSutherlandComputeSteps } from "./cohensutherland";
 import "./deps/svg.topoly.js";
 import { svgLineLength } from "./utils";
 import { VizStep } from "./VizStep";
+import { InputAction } from "./InputAction";
+import { LEFT_MOUSE_BUTTON } from "./constants";
 
-const LEFT_MOUSE_BUTTON = 0;
+let theSVG: SVG.Doc;
 
-abstract class InputAction {
-    public abstract undo(): void;
-    public abstract redo(): void;
-}
+let disableEditing = false;
+let currentStep: number | null = null;
 
 const undoStack: InputAction[] = [];
 const redoStack: InputAction[] = [];
@@ -46,8 +46,8 @@ export function redo() {
 
 function updateUndoRedoButtons() {
     const undoButton = document.getElementById("undobutton") as HTMLButtonElement;
-    undoButton.disabled = undoStack.length === 0;
     const redoButton = document.getElementById("redobutton") as HTMLButtonElement;
+    undoButton.disabled = undoStack.length === 0;
     redoButton.disabled = redoStack.length === 0;
 }
 
@@ -56,11 +56,6 @@ function pushToUndoHistory(act: InputAction) {
     redoStack.length = 0;
     updateUndoRedoButtons();
 }
-
-let theSVG: SVG.Doc;
-let d3SVG: d3.Selection<d3.BaseType, {}, HTMLElement, any>;
-
-let currentStep: number | null = null;
 
 export function forward() {
     const oldStep = currentStep;
@@ -208,7 +203,7 @@ function loadFile(contents: string) {
     // fetch paths from document and convert them into lines
     for (const path of docPaths) {
         const adoptedPath = SVG.adopt(path) as SVG.Path;
-        const polyline = adoptedPath.toPoly() as SVG.PolyLine;
+        const polyline = adoptedPath.toPoly();
 
         const points = polyline.array().value as unknown as number[][];
         for (let i = 0; i < points.length - 1; i++) {
@@ -227,7 +222,27 @@ function loadFile(contents: string) {
 let steps: VizStep[] = [];
 let currentVizStep = -1;
 
+function setAllowEditing(allowEditing: boolean) {
+    if (!allowEditing) {
+        disableEditing = true;
+        $("#topcontainer").animate({
+            top: "-200px"
+        }, 500, "swing", function() {
+            document.getElementById("topcontainer")!.style.display = "none";
+        });
+        rect.selectize(false);
+    } else {
+        disableEditing = false;
+        document.getElementById("topcontainer")!.style.display = "block";
+        $("#topcontainer").animate({
+            top: "10px"
+        }, 500, "swing");
+        rect.selectize({rotationPoint: false});
+    }
+}
+
 export function computeSteps() {
+    setAllowEditing(false);
     steps = cohenSutherlandComputeSteps(theSVG, rect, lines);
     (document.getElementById("backbutton") as HTMLButtonElement).disabled = false;
     (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = false;
@@ -323,9 +338,6 @@ export function onLoad() {
     window.addEventListener("resize", updateSVGViewbox);
     updateSVGViewbox();
 
-    // fetch D3 object for it
-    d3SVG = d3.select("#actualviz");
-
     // add algorithms to left pane
     addAlgorithm("Convex Hull", "WIP", []);
     addAlgorithm("Line Segment Intersection", "WIP", []);
@@ -368,7 +380,7 @@ export function onLoad() {
     $("#algoButton4").click();
 
     // add resizable rect
-    rect = theSVG.rect(200, 100).move(100, 100).fill("#fff");
+    rect = theSVG.rect(200, 100).move(100, 100).fill("#eee").stroke("#000");
     rect.selectize({rotationPoint: false});
     rect.resize();
     rect.draggable();
@@ -501,6 +513,9 @@ export function onLoad() {
         let line: SVG.Line | null;
 
         theSVG.on("mousedown", function(event: MouseEvent) {
+            if (disableEditing)
+                return;
+
             if (event.button !== LEFT_MOUSE_BUTTON)
                 return;
 
