@@ -1,11 +1,17 @@
+import * as $ from "jquery";
 import * as SVG from "svg.js";
 import { Line, Point, Rect } from "./geometrytypes";
 import { VizStep } from "./VizStep";
-import { linePoint1, linePoint2 } from "./utils";
+import { linePoint1, linePoint2, svgLineLength } from "./utils";
 import { SymmetricalVizAction } from "./SymmetricalVizAction";
 import { EntryOnlyVizAction } from "./EntryOnlyVizAction";
+import { InputAction } from "./InputAction";
+import { LEFT_MOUSE_BUTTON } from "./constants";
+import { PseudocodeLine } from "./PseudocodeLine";
+import { VizualizationBase } from "./VizualizationBase";
+import { pushToUndoHistory } from "./geomvis";
 
-export const pseudoCode =
+const pseudoCode: PseudocodeLine[] =
 [{code: "for each line", stepText: "We take the following sequence of steps for each line we have to process. So we select any line we haven't selected yet."},
  {code: "  outcode1 = outcode(endpoint1)", stepText: "First, we check where one of the ends of the line is, and give it an outcode. Which end we choose first doesn't matter."},
  {code: "  outcode2 = outcode(endpoint2)", stepText: "Then we do the same for the other end of the line."},
@@ -351,5 +357,348 @@ class ClipLineAction extends EntryOnlyVizAction {
             this.lineData.p2.x,
             this.lineData.p2.y
         );
+    }
+}
+
+export class CohenSutherlandViz extends VizualizationBase {
+    private rect!: SVG.Rect;
+    private lines!: SVG.Line[];
+    private leftGuideline!: SVG.Line;
+    private rightGuideline!: SVG.Line;
+    private topGuideline!: SVG.Line;
+    private bottomGuideline!: SVG.Line;
+
+    constructor(canvas: svgjs.Doc) {
+        super(canvas);
+    }
+
+    public getPseudocode(): PseudocodeLine[] {
+        return pseudoCode;
+    }
+
+    public setupCanvas(canvas: SVG.Doc) {
+        // add resizable rect
+        this.rect = canvas.rect(200, 100).move(100, 100).fill("#eee").stroke("#000");
+        this.rect.selectize({rotationPoint: false});
+        this.rect.resize();
+        this.rect.draggable();
+
+        // add region guidelines
+        const guideLineStroke: SVG.StrokeData = {
+            dasharray: "8",
+            color: "black"
+        };
+        this.leftGuideline = canvas
+            .line(0, 0, 0, 0)
+            .stroke(guideLineStroke);
+        this.rect.before(this.leftGuideline);
+        this.rightGuideline = canvas
+            .line(0, 0, 0, 0)
+            .stroke(guideLineStroke);
+        this.rect.before(this.rightGuideline);
+        this.topGuideline = canvas
+            .line(0, 0, 0, 0)
+            .stroke(guideLineStroke);
+        this.rect.before(this.topGuideline);
+        this.bottomGuideline = canvas
+            .line(0, 0, 0, 0)
+            .stroke(guideLineStroke);
+        this.rect.before(this.bottomGuideline);
+        this.updateGuidelines();
+    }
+
+    public setupInput(canvas: SVG.Doc) {
+        this.lines = [];
+
+        // aliases for inner class scopes
+        const updateGuidelinesFunc = this.updateGuidelines;
+        const lines = this.lines;
+
+        {
+            // setup rectangle event handling for undo/redo
+            interface RectData {
+                x: number;
+                y: number;
+                width: number;
+                height: number;
+            }
+            class RectModifyAction extends InputAction {
+                private oldData: RectData;
+                private newData: RectData;
+                private target: SVGRectElement;
+                constructor(oldData: RectData, newData: RectData, target: SVGRectElement) {
+                    super();
+                    this.oldData = oldData;
+                    this.newData = newData;
+                    this.target = target;
+                }
+                public undo() {
+                    const adopted = SVG.adopt(this.target);
+                    adopted.attr("x", this.oldData.x);
+                    adopted.attr("y", this.oldData.y);
+                    adopted.attr("width", this.oldData.width);
+                    adopted.attr("height", this.oldData.height);
+                    updateGuidelinesFunc();
+                }
+                public redo() {
+                    const adopted = SVG.adopt(this.target);
+                    adopted.attr("x", this.newData.x);
+                    adopted.attr("y", this.newData.y);
+                    adopted.attr("width", this.newData.width);
+                    adopted.attr("height", this.newData.height);
+                    updateGuidelinesFunc();
+                }
+            }
+
+            let oldData: RectData;
+            let newData: RectData;
+            this.rect.on("resizestart", (event: any) => {
+                const adopted = SVG.adopt(event.target);
+                oldData = {
+                    x: adopted.x(),
+                    y: adopted.y(),
+                    width: adopted.width(),
+                    height: adopted.height(),
+                };
+            });
+            this.rect.on("resizing", (event: any) => {
+                const adopted = SVG.adopt(event.target);
+                newData = {
+                    x: adopted.x(),
+                    y: adopted.y(),
+                    width: adopted.width(),
+                    height: adopted.height(),
+                };
+                updateGuidelinesFunc();
+            });
+            this.rect.on("resizedone", (event: any) => {
+                pushToUndoHistory(new RectModifyAction(oldData, newData, event.target));
+                updateGuidelinesFunc();
+            });
+
+            this.rect.on("beforedrag", function(this: SVG.Rect, event: any) {
+                // drag only if shift is pressed
+                if (!(event.detail.event as MouseEvent).shiftKey) {
+                    event.preventDefault();
+                    return;
+                }
+
+                const adopted = SVG.adopt(event.target);
+                oldData = {
+                    x: adopted.x(),
+                    y: adopted.y(),
+                    width: adopted.width(),
+                    height: adopted.height(),
+                };
+                oldData = {
+                    x: this.x(),
+                    y: this.y(),
+                    width: this.width(),
+                    height: this.height(),
+                };
+            });
+
+            this.rect.on("dragmove", this.updateGuidelines);
+
+            this.rect.on("dragend", function(this: SVG.Rect, event: any) {
+                newData = {
+                    x: this.x(),
+                    y: this.y(),
+                    width: this.width(),
+                    height: this.height(),
+                };
+                updateGuidelinesFunc();
+                pushToUndoHistory(new RectModifyAction(oldData, newData, event.target));
+            });
+        }
+
+        // setup line drawing
+        {
+            let line: SVG.Line | null;
+
+            canvas.on("mousedown", (event: MouseEvent) => {
+                if (!this.editingAllowed)
+                    return;
+
+                if (event.button !== LEFT_MOUSE_BUTTON)
+                    return;
+
+                // start drawing
+                line = canvas.line(0, 0, 0, 0).stroke({ color: "black", width: 1 }).draw(event, {});
+                return false;
+            });
+            canvas.on("mouseup", function(event: MouseEvent) {
+                if (!line)
+                    return;
+
+                // finish drawing
+                line.draw("stop", event);
+
+                // ignore lines that are too small
+                if (svgLineLength(line) < 8) {
+                    line.remove();
+                    line = null;
+                    return;
+                }
+
+                // add ghost line for clicking
+                line.attr("pointer-events", "none");
+                const ghost = line.clone().stroke({ width: 5, opacity: 0 }).attr("pointer-events", "all").attr("cursor", "pointer") as SVG.Line;
+                canvas.add(ghost);
+
+                // add to history
+                pushToUndoHistory(new class extends InputAction {
+                    private path: SVG.Line;
+                    private ghostPath: SVG.Line;
+                    constructor(path: SVG.Line, ghostPath: SVG.Line) {
+                        super();
+                        this.path = path;
+                        this.ghostPath = ghostPath;
+                    }
+                    public undo() {
+                        this.path.remove();
+                        this.ghostPath.remove();
+                        lines.splice(lines.indexOf(this.path), 1);
+                    }
+                    public redo() {
+                        canvas.add(this.path);
+                        canvas.add(this.ghostPath);
+                        lines.push(this.path);
+                    }
+                }(line, ghost));
+
+                {
+                    const deleteUndoEvent = new class extends InputAction {
+                        private path: SVG.Line;
+                        private ghostPath: SVG.Line;
+                        constructor(path: SVG.Line, ghostPath: SVG.Line) {
+                            super();
+                            this.path = path;
+                            this.ghostPath = ghostPath;
+                        }
+                        public undo() {
+                            canvas.add(this.path);
+                            canvas.add(this.ghostPath);
+                            lines.push(this.path);
+                        }
+                        public redo() {
+                            this.path.remove();
+                            this.ghostPath.remove();
+                            lines.splice(lines.indexOf(this.path), 1);
+                        }
+                    }(line, ghost);
+
+                    ghost.on("mousedown", function(this: SVG.Line, event: any) {
+                        deleteUndoEvent.redo();
+                        pushToUndoHistory(deleteUndoEvent);
+                    });
+                }
+
+                lines.push(line);
+                line = null;
+
+                return false; // prevent propagation so we can listen globally to kill lines outside area
+            });
+            window.addEventListener("mouseup", event => {
+                // mouse was released outside of drawing area. Discard our current line if we have one
+                if (line) {
+                    line.draw("stop", event);
+                    line.remove();
+                    line = null;
+                }
+            });
+        }
+    }
+
+    public loadFromString(contents: string) {
+        const doc = new DOMParser().parseFromString(contents, "image/svg+xml");
+        const docRect = doc.getElementsByTagName("rect")[0];
+        const docLines = doc.getElementsByTagName("line");
+        const docPaths = doc.getElementsByTagName("path");
+
+        // clear current lines
+        this.lines.forEach(line => {
+            line.remove();
+        });
+        this.lines.length = 0;
+
+        // adapt our rect to first rect in document
+        const adoptedRect = SVG.adopt(docRect);
+        this.rect.attr("x", adoptedRect.x());
+        this.rect.attr("y", adoptedRect.y());
+        this.rect.attr("width", adoptedRect.width());
+        this.rect.attr("height", adoptedRect.height());
+
+        // fetch lines from document
+        for (const line of docLines) {
+            const adoptedLine = SVG.adopt(line) as SVG.Line;
+            const points = adoptedLine.array().toLine();
+            const newLine = this.canvas.line(points.x1, points.y1, points.x2, points.y2).stroke("#000000");
+            this.canvas.add(newLine);
+            this.lines.push(newLine);
+        }
+
+        // fetch paths from document and convert them into lines
+        for (const path of docPaths) {
+            const adoptedPath = SVG.adopt(path) as SVG.Path;
+            const polyline = adoptedPath.toPoly();
+
+            const points = polyline.array().value as unknown as number[][];
+            for (let i = 0; i < points.length - 1; i++) {
+                const line = this.canvas.line(
+                    points[i][0],
+                    points[i][1],
+                    points[i + 1][0],
+                    points[i + 1][1]
+                ).stroke("#000000");
+                this.lines.push(line);
+            }
+        }
+        this.updateGuidelines();
+    }
+
+    public updateGuidelines() {
+        const guidlinePadding = 10000;
+        this.leftGuideline.plot(
+            this.rect.x(),
+            this.rect.y() + this.rect.height() + guidlinePadding,
+            this.rect.x(),
+            this.rect.y() - guidlinePadding);
+        this.rightGuideline.plot(
+            this.rect.x() + this.rect.width(),
+            this.rect.y() + this.rect.height() + guidlinePadding,
+            this.rect.x() + this.rect.width(),
+            this.rect.y() - guidlinePadding);
+        this.topGuideline.plot(
+            this.rect.x() - guidlinePadding,
+            this.rect.y(),
+            this.rect.x() + this.rect.width() + guidlinePadding,
+            this.rect.y());
+        this.bottomGuideline.plot(
+            this.rect.x() - guidlinePadding,
+            this.rect.y() + this.rect.height(),
+            this.rect.x() + this.rect.width() + guidlinePadding,
+            this.rect.y() + this.rect.height());
+    }
+
+    public onEnableEditing() {
+        document.getElementById("topcontainer")!.style.display = "block";
+        $("#topcontainer").animate({
+            top: "10px"
+        }, 500, "swing");
+        this.rect.selectize({ rotationPoint: false });
+    }
+
+    public onDisableEditing() {
+        $("#topcontainer").animate({
+            top: "-200px"
+        }, 500, "swing", function() {
+            document.getElementById("topcontainer")!.style.display = "none";
+        });
+        this.rect.selectize(false);
+    }
+
+    public computeSteps() {
+        return cohenSutherlandComputeSteps(this.canvas, this.rect, this.lines);
     }
 }
