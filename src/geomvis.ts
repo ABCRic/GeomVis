@@ -261,6 +261,10 @@ export function onLoad() {
     viz.setupCanvas(theSVG);
     viz.setupInput(theSVG);
 
+    // setup hint text
+    const hintText = document.getElementById("hinttext")!;
+    hintText.textContent = viz.getHintText();
+
     // setup pseudo-code panel
     const pseudoCodePanel = document.getElementById("pseudocodepanel")!;
     viz.getPseudocode().forEach((line, index) => {

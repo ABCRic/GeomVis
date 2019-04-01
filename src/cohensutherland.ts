@@ -376,6 +376,11 @@ export class CohenSutherlandViz extends VizualizationBase {
         return pseudoCode;
     }
 
+    public getHintText(): string {
+        return "Click and drag to draw lines; Click lines to remove them\n"
+            + "Hold Shift and click and drag the rectangle to move it";
+    }
+
     public setupCanvas(canvas: SVG.Doc) {
         // add resizable rect
         this.rect = canvas.rect(200, 100).move(100, 100).fill("#eee").stroke("#000");

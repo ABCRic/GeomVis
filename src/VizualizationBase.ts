@@ -9,6 +9,7 @@ export abstract class VizualizationBase {
     }
 
     public abstract getPseudocode(): PseudocodeLine[];
+    public abstract getHintText(): string;
     public abstract setupCanvas(canvas: svgjs.Doc): void;
     public abstract setupInput(canvas: svgjs.Doc): void;
     public abstract loadFromString(contents: string): void;
