@@ -12,7 +12,7 @@ import { VizualizationBase } from "./VizualizationBase";
 import { pushToUndoHistory } from "./geomvis";
 
 const pseudoCode: PseudocodeLine[] =
-[{code: "for each line", stepText: "We take the following sequence of steps for each line we have to process. So we select any line we haven't selected yet."},
+[{code: "for each line:", stepText: "We take the following sequence of steps for each line we have to process. So we select any line we haven't selected yet."},
  {code: "  outcode1 = outcode(endpoint1)", stepText: "First, we check where one of the ends of the line is, and give it an outcode. Which end we choose first doesn't matter."},
  {code: "  outcode2 = outcode(endpoint2)", stepText: "Then we do the same for the other end of the line."},
  {code: "  if outcode1 | outcode2 == 0", stepText: "We check the outcodes: by using | (bitwise OR) we can quickly check if any of them have any bits set. Because the region of the clipping rectangle is all zeroes, if the result of the bitwise OR is zero then we know both ends of the line are inside the rectangle. Then we can trivially accept it."},
@@ -416,7 +416,7 @@ export class CohenSutherlandViz extends VizualizationBase {
         this.lines = [];
 
         // aliases for inner class scopes
-        const updateGuidelinesFunc = this.updateGuidelines;
+        const updateGuidelinesFunc = () => this.updateGuidelines();
         const lines = this.lines;
 
         {
