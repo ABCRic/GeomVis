@@ -13,6 +13,7 @@ import "./deps/svg.topoly.js";
 import { VizStep } from "./VizStep";
 import { InputAction } from "./InputAction";
 import { VizualizationBase } from "./VizualizationBase";
+import { ConvexHullViz } from "./convexhull";
 
 let theSVG: SVG.Doc;
 
@@ -202,7 +203,7 @@ export function discardModalConfirm() {
 // UI filling
 ////////////////
 let algorithmNum = 0;
-function addAlgorithm(name: string, description: string, examples: AlgorithmExample[]) {
+function addAlgorithm(name: string, description: string, vizClass: new (canvas: SVG.Doc) => VizualizationBase, examples: AlgorithmExample[]) {
     const template = document.getElementById("algorithmTemplate") as HTMLTemplateElement;
 
     // instance algorithm template and fill
@@ -214,6 +215,9 @@ function addAlgorithm(name: string, description: string, examples: AlgorithmExam
     algoButton.setAttribute("data-target", "#algoCollapse" + algorithmNum);
     algoButton.setAttribute("aria-controls", "#algoCollapse" + algorithmNum);
     algoButton.textContent = name;
+    algoButton.addEventListener("click", () => {
+        activateVizualizer(vizClass);
+    });
     const algoCollapse = clone.querySelector("#algoCollapsePlaceholder") as HTMLDivElement;
     algoCollapse.id = "algoCollapse" + algorithmNum;
     algoCollapse.setAttribute("aria-labelledby", "algoHeader" + algorithmNum);
@@ -239,25 +243,10 @@ function addAlgorithm(name: string, description: string, examples: AlgorithmExam
     document.querySelector("#algorithmAccordion")!.appendChild(clone);
 }
 
-function updateSVGViewbox() {
-    theSVG.viewbox(
-        //-document.getElementById("leftpane")!.offsetWidth // TODO: uncomment this after make left pane collapsible
-    -500, -100, window.innerWidth, window.innerHeight);
-}
-
-export function onLoad() {
-    // create the SVG
-    theSVG = SVG("vizcontainer").size("100%", "100%").attr("id", "actualviz").attr("color", "#ffffff");
-    theSVG.attr("preserveAspectRatio", "xMidYMid slice");
-    window.addEventListener("resize", updateSVGViewbox);
-    updateSVGViewbox();
-
-    // add algorithms to left pane
-    addAlgorithms();
-    // show one
-    $("#algoButton4").click();
-
-    viz = new CohenSutherlandViz(theSVG);
+function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase) {
+    theSVG.remove();
+    createSVG();
+    viz = new vizClass(theSVG);
     viz.setupCanvas(theSVG);
     viz.setupInput(theSVG);
 
@@ -267,6 +256,8 @@ export function onLoad() {
 
     // setup pseudo-code panel
     const pseudoCodePanel = document.getElementById("pseudocodepanel")!;
+    // clear panel
+    while (pseudoCodePanel.firstChild) pseudoCodePanel.removeChild(pseudoCodePanel.firstChild);
     viz.getPseudocode().forEach((line, index) => {
         const p = document.createElement("pre");
         p.textContent = line.code;
@@ -277,11 +268,39 @@ export function onLoad() {
     updatePseudoCodeHighlight(null);
 }
 
+function updateSVGViewbox() {
+    theSVG.viewbox(
+        //-document.getElementById("leftpane")!.offsetWidth // TODO: uncomment this after make left pane collapsible
+    -500, -100, window.innerWidth, window.innerHeight);
+}
+
+function createSVG() {
+    theSVG = SVG("vizcontainer").size("100%", "100%").attr("id", "actualviz").attr("color", "#ffffff");
+    theSVG.attr("preserveAspectRatio", "xMidYMid slice");
+    updateSVGViewbox();
+}
+
+export function onLoad() {
+    createSVG();
+    window.addEventListener("resize", updateSVGViewbox);
+
+    // add algorithms to left pane
+    addAlgorithms();
+    // show one
+    $("#algoButton1").click();
+}
+
 function addAlgorithms() {
-    addAlgorithm("Convex Hull", "WIP", []);
-    addAlgorithm("Line Segment Intersection", "WIP", []);
-    addAlgorithm("Point in Polygon", "WIP", []);
-    addAlgorithm("Cohen-Sutherland", "Clips lines into a polygon.", [
+    addAlgorithm("Convex Hull", "WIP", ConvexHullViz, [
+        {
+            imagePath: "inputs/convexhull/example1.png",
+            inputPath: "inputs/convexhull/example1.svg",
+            name: "Example 1"
+        }
+    ]);
+    addAlgorithm("Line Segment Intersection", "WIP", null!, []);
+    addAlgorithm("Point in Polygon", "WIP", null!, []);
+    addAlgorithm("Cohen-Sutherland", "Clips lines into a polygon.", CohenSutherlandViz, [
         {
             imagePath: "inputs/cohensutherland/example1.png",
             inputPath: "inputs/cohensutherland/example1.svg",
@@ -313,5 +332,5 @@ function addAlgorithms() {
             name: "Example 6"
         }
     ]);
-    addAlgorithm("Sutherland-Hodgman", "WIP", []);
+    addAlgorithm("Sutherland-Hodgman", "WIP", null!, []);
 }

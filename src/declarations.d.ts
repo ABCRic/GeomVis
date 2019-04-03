@@ -23,9 +23,16 @@ declare namespace svgjs {
         draw(any: any, any2?: any): any;
     }
 
-    // this method works perfectly but it's not in the provided types for some reason
+    // add methods we're using safely on animation
     interface Animation {
         stroke(color: string): this;
         stroke(data: StrokeData): this;
+        
+        fill(fill: { color?: string; opacity?: number, rule?: string }): this;
+        fill(color: string): this;
+        fill(pattern: Element): this;
+        fill(image: Image): this;
+
+        radius(x: number, y?: number): this;
     }
 }
