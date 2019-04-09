@@ -34,13 +34,13 @@ function computeOutcode(rect: Rect, point: Point): number {
     let outcode = OUTCODE_INSIDE;
 
     if (point.x < rect.left)
-        outcode = outcode || OUTCODE_LEFT;
+        outcode = outcode | OUTCODE_LEFT;
     if (point.x > rect.right)
-        outcode = outcode || OUTCODE_RIGHT;
+        outcode = outcode | OUTCODE_RIGHT;
     if (point.y < rect.top)
-        outcode = outcode || OUTCODE_TOP;
+        outcode = outcode | OUTCODE_TOP;
     if (point.y > rect.bottom)
-        outcode = outcode || OUTCODE_BOTTOM;
+        outcode = outcode | OUTCODE_BOTTOM;
 
     return outcode;
 }
