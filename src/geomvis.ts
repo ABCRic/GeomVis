@@ -14,6 +14,7 @@ import { VizStep } from "./VizStep";
 import { InputAction } from "./InputAction";
 import { VizualizationBase } from "./VizualizationBase";
 import { ConvexHullViz } from "./convexhull";
+import { classOf } from "./utils";
 
 let theSVG: SVG.Doc;
 
@@ -143,6 +144,7 @@ export function fileSelected() {
         reader.readAsText(file); // result will be string in reader.result
         reader.onload = event => {
             const fileContents = reader.result as string;
+            activateVizualizer(classOf(viz)); // reset current viz
             viz.loadFromString(fileContents);
         };
         reader.onerror = event => {
@@ -166,6 +168,7 @@ function loadExample(path: string) {
     console.log("Loading example from " + path);
     $("#loadingModal").modal("show");
     getFile(path, responseText => {
+        activateVizualizer(classOf(viz)); // reset current viz
         viz.loadFromString(responseText);
         $("#loadingModal").on("shown.bs.modal",
             () => $("#loadingModal").modal("hide")
@@ -243,7 +246,17 @@ function addAlgorithm(name: string, description: string, vizClass: new (canvas: 
     document.querySelector("#algorithmAccordion")!.appendChild(clone);
 }
 
+function resetViz() {
+    steps = [];
+    currentVizStep = -1;
+    currentStep = null;
+    undoStack.length = 0;
+    redoStack.length = 0;
+}
+
 function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase) {
+    resetViz();
+
     theSVG.remove();
     createSVG();
     viz = new vizClass(theSVG);

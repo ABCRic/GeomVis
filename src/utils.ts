@@ -25,3 +25,7 @@ export function getSVGCoordinatesForMouseEvent(canvas: SVG.Doc, event: MouseEven
     pt.y = event.clientY;
     return pt.matrixTransform((canvas.node as any).getScreenCTM().inverse());
 }
+
+export function classOf<T>(o: T): any {
+    return o.constructor;
+}
