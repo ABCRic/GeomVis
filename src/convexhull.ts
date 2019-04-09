@@ -7,8 +7,19 @@ import { pushToUndoHistory } from "./geomvis";
 import { InputAction } from "./InputAction";
 import { getSVGCoordinatesForMouseEvent } from "./utils";
 import { EntryOnlyVizAction } from "./EntryOnlyVizAction";
+import { Point } from "./geometrytypes";
 
 const CIRCLE_SIZE = 10;
+
+function circleToPoint(c: svgjs.Circle): Point {
+    return {x: c.cx(), y: c.cy()};
+}
+
+function clockwise(p1: Point, p2: Point, p3: Point) {
+    // get the z-value for of the cross product of p1->p2 and p1->p3
+    // positive: left turn, zero: colinear, negative: right turn
+    return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x) < 0;
+}
 
 export class ConvexHullViz extends VizualizationBase {
     private points: svgjs.Circle[] = [];
@@ -19,7 +30,7 @@ export class ConvexHullViz extends VizualizationBase {
             {code: "find the lowest point -> P0", stepText: "To start with, we find the lowest point, that is, the one with the lowest Y value (Y axis pointing up). If there are multiple with the same Y value, we pick the leftmost one. We'll call this point P0."},
             {code: "sort the points by angle with P0", stepText: "Then we find the angle from P0 to each of the other points and sort them by that angle."},
             {code: "for each point:", stepText: "We go through each point of the sorted list, in order. For each one we take the next steps."},
-            {code: "  while stack.count() > 1 and\n      clockwise(stack.belowTop(), stack.top(), point):", stepText: "While the stack has at least two points, we want to check if the current point and the two before form a clockwise turn (a \"right turn\")."},
+            {code: "  while stack.count() > 1 and\n      clockwise(stack.belowTop(),\n                stack.top(),\n                point):", stepText: "While the stack has at least two points, we want to check if the current point and the two before form a clockwise turn (a \"right turn\")."},
             {code: "    stack.pop()", stepText: "We found a \"right turn\" - a clockwise turn. This means that if we keep the last point, the hull turns inside and back out, which means it is not convex. So we remove that point from the stack."},
             {code: "  stack.push(point)", stepText: "When we're done eliminating clockwise turns, we add the current point to the stack. Then we go on to the next point."},
             {code: "done", stepText: "The algorithm is finished and the stack contains the points forming the convex hull in counterclockwise order."},
@@ -108,7 +119,7 @@ export class ConvexHullViz extends VizualizationBase {
     public onDisableEditing(): void { return; }
 
     public computeSteps(): VizStep[] {
-        let steps: VizStep[] = [];
+        const steps: VizStep[] = [];
         steps.push(new VizStep(0));
 
         // select p0
@@ -138,10 +149,139 @@ export class ConvexHullViz extends VizualizationBase {
         for (const [i, point] of sortedPoints.entries()) {
             const highlightPoint = new VizStep(2);
             highlightPoint.acts.push(new NumberPointAction(this.canvas, point, i + 1));
+            highlightPoint.acts.push(new ProjectBeamAction(this.canvas, p0, point));
             steps.push(highlightPoint);
         }
 
+        const edges = new Map<svgjs.Circle, svgjs.Line>(); // runtime edges
+        const haveEdges: svgjs.Circle[] = []; // generation-time edges
+        const stack = [
+            sortedPoints[sortedPoints.length - 1],
+            p0,
+            sortedPoints[0]
+        ];
+        // main loop
+        for (const point of sortedPoints.slice(1)) {
+            // highlight point under iteration
+            const highlightPoint = new VizStep(3);
+            highlightPoint.acts.push(new ColorPointAction(this.canvas, point, "white", "orange", "black", "white"));
+            steps.push(highlightPoint);
+
+            while (stack.length > 1) {
+                // hightlight points being checked
+                const checkCCW = new VizStep(4);
+                if (haveEdges.indexOf(stack[stack.length - 1]) === -1) {
+                    checkCCW.acts.push(new ColorPointAction(this.canvas, stack[stack.length - 2], "white", "orange", "black", "white"));
+                    checkCCW.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 2], stack[stack.length - 1]));
+                    haveEdges.push(stack[stack.length - 1]);
+                }
+                if (haveEdges.indexOf(point) === -1) {
+                    checkCCW.acts.push(new ColorPointAction(this.canvas, stack[stack.length - 1], "white", "orange", "black", "white"));
+                    checkCCW.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], point));
+                    haveEdges.push(point);
+                }
+                steps.push(checkCCW);
+
+                if (!clockwise(
+                    circleToPoint(stack[stack.length - 2]),
+                    circleToPoint(stack[stack.length - 1]),
+                    circleToPoint(point))) {
+                    // erase corner
+                    const eraseLine = new VizStep(5);
+                    eraseLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 2], stack[stack.length - 1]).getReverse());
+                    haveEdges.splice(haveEdges.indexOf(stack[stack.length - 1]));
+                    eraseLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], point).getReverse());
+                    haveEdges.splice(haveEdges.indexOf(point));
+                    eraseLine.acts.push(new ColorPointAction(this.canvas, stack[stack.length - 1], "orange", "white", "white", "black"));
+                    steps.push(eraseLine);
+                    stack.pop();
+                } else {
+                    break;
+                }
+            }
+            if (stack.length > 0) {
+                const addLine = new VizStep(6);
+                addLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], point));
+                haveEdges.push(point);
+                steps.push(addLine);
+            }
+
+            stack.push(point);
+        }
+
+        const addLastLine = new VizStep(7);
+        addLastLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], p0));
+        steps.push(addLastLine);
+
         return steps;
+    }
+}
+
+class ProjectBeamAction extends EntryOnlyVizAction {
+    private from: svgjs.Circle;
+    private to: svgjs.Circle;
+
+    constructor(canvas: svgjs.Doc, from: svgjs.Circle, to: svgjs.Circle) {
+        super(canvas);
+        this.from = from;
+        this.to = to;
+    }
+
+    public stepFromPrevious(): void {
+        this.canvas.line([
+            [this.from.cx(),
+             this.from.cy()],
+            [this.from.cx() + 0.1 * (this.to.cx() - this.from.cx()),
+             this.from.cy() + 0.1 * (this.to.cy() - this.from.cy())]
+        ])
+        .stroke({width: 3, color: "black"})
+        .animate(250).plot([
+            [this.from.cx() + 0.9 * (this.to.cx() - this.from.cx()),
+             this.from.cy() + 0.9 * (this.to.cy() - this.from.cy())],
+            [this.to.cx(),
+             this.to.cy()]])
+            .after(function(this: svgjs.Animation) {
+                this.remove();
+            });
+    }
+    public stepToPrevious(): void { return; }
+}
+
+class AddLineAction extends EntryOnlyVizAction {
+    private edges: Map<svgjs.Circle, svgjs.Line>;
+    private from: svgjs.Circle;
+    private to: svgjs.Circle;
+
+    constructor(canvas: svgjs.Doc, edges: Map<svgjs.Circle, svgjs.Line>,
+                from: svgjs.Circle, to: svgjs.Circle) {
+        super(canvas);
+        this.edges = edges;
+        this.from = from;
+        this.to = to;
+    }
+
+    public stepFromPrevious(): void {
+        if (this.edges.get(this.to)) return;
+        const line = this.canvas.line([
+            [this.from.cx(),
+             this.from.cy()],
+            [this.from.cx() + 0.1 * (this.to.cx() - this.from.cx()),
+             this.from.cy() + 0.1 * (this.to.cy() - this.from.cy())]
+        ])
+        .stroke({width: 3, color: "black"});
+        line.animate(250).plot([
+            [this.from.cx(),
+             this.from.cy()],
+            [this.to.cx(),
+             this.to.cy()]]);
+        this.edges.set(this.to, line);
+    }
+
+    public stepToPrevious(): void {
+        if (this.edges.get(this.to)) {
+            this.edges.get(this.to)!.remove();
+            this.edges.delete(this.to);
+        }
     }
 }
 
@@ -165,6 +305,7 @@ class NumberPointAction extends EntryOnlyVizAction {
         this.text = this.canvas.text(this.index.toString())
                         .center(this.point.cx(), this.point.cy())
                         .font({family: "Helvetica, sans-serif"});
+        this.point.data("text", this.text.id(), true);
     }
 
     public stepToPrevious(): void {
@@ -173,5 +314,32 @@ class NumberPointAction extends EntryOnlyVizAction {
             .stroke({width: 0, color: "black"})
             .radius(CIRCLE_SIZE);
         this.text!.remove();
+        this.point.data("text", null);
+    }
+}
+
+class ColorPointAction extends EntryOnlyVizAction {
+    private point: SVG.Circle;
+    private fromColor: string;
+    private toColor: string;
+    private textFromColor: string;
+    private textToColor: string;
+
+    constructor(canvas: SVG.Doc, line: SVG.Circle, fromColor: string, toColor: string, textFromColor: string, textToColor: string) {
+        super(canvas);
+        this.point = line;
+        this.fromColor = fromColor;
+        this.toColor = toColor;
+        this.textFromColor = textFromColor;
+        this.textToColor = textToColor;
+    }
+
+    public stepFromPrevious(): void {
+        this.point.animate(250).fill(this.toColor);
+        (SVG.get(this.point.data("text")) as svgjs.Text).fill(this.textToColor);
+    }
+    public stepToPrevious(): void {
+        this.point.fill(this.fromColor);
+        (SVG.get(this.point.data("text")) as svgjs.Text).fill(this.textFromColor);
     }
 }

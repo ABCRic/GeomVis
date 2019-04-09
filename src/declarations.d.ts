@@ -34,5 +34,10 @@ declare namespace svgjs {
         fill(image: Image): this;
 
         radius(x: number, y?: number): this;
+
+        plot(points: PointArrayAlias): this;
+        plot(x1: number, y1: number, x2: number, y2: number): this;
+
+        remove(): this;
     }
 }

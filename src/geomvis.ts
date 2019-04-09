@@ -309,6 +309,16 @@ function addAlgorithms() {
             imagePath: "inputs/convexhull/example1.png",
             inputPath: "inputs/convexhull/example1.svg",
             name: "Example 1"
+        },
+        {
+            imagePath: "inputs/convexhull/example2.png",
+            inputPath: "inputs/convexhull/example2.svg",
+            name: "Example 2"
+        },
+        {
+            imagePath: "inputs/convexhull/example3.png",
+            inputPath: "inputs/convexhull/example3.svg",
+            name: "Example 3"
         }
     ]);
     addAlgorithm("Line Segment Intersection", "WIP", null!, []);

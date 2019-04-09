@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="517.87004"
-     inkscape:cy="832.27404"
+     inkscape:zoom="0.9899495"
+     inkscape:cx="537.4577"
+     inkscape:cy="770.14199"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -35,7 +35,8 @@
      inkscape:window-height="1017"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     showborder="false" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -55,26 +56,26 @@
     <circle
        id="path4754"
        style="fill:#000000;stroke:none"
-       cx="108.37779"
-       cy="59.263756"
+       cx="55.461128"
+       cy="66.823273"
        r="1.5" />
     <circle
        id="path4772"
        style="fill:#000000;stroke:none"
-       cx="121.60764"
-       cy="71.424522"
+       cx="138.23859"
+       cy="162.13881"
        r="1.5" />
     <circle
        id="path4774"
        style="fill:#000000;stroke:none"
-       cx="134.03568"
-       cy="62.337357"
+       cx="241.38092"
+       cy="101.2689"
        r="1.5" />
     <circle
        id="path4776"
        style="fill:#000000;stroke:none"
-       cx="122.54308"
-       cy="57.526505"
+       cx="186.04309"
+       cy="24.642574"
        r="1.5" />
   </g>
 </svg>
