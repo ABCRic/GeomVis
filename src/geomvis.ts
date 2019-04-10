@@ -304,7 +304,9 @@ export function onLoad() {
 }
 
 function addAlgorithms() {
-    addAlgorithm("Convex Hull", "WIP", ConvexHullViz, [
+    addAlgorithm("Convex Hull - Graham scan",
+`A convex hull of points is the smallest convex set of points that contains them. You can visualize it as the shape enclosed by a rubber band stretched around the points.
+Graham scan is an O(n log n) algorithm for finding a convex hull. The algorithm was originally published by Ronald Graham in 1972.`, ConvexHullViz, [
         {
             imagePath: "inputs/convexhull/example1.png",
             inputPath: "inputs/convexhull/example1.svg",
@@ -323,7 +325,9 @@ function addAlgorithms() {
     ]);
     addAlgorithm("Line Segment Intersection", "WIP", null!, []);
     addAlgorithm("Point in Polygon", "WIP", null!, []);
-    addAlgorithm("Cohen-Sutherland", "Clips lines into a polygon.", CohenSutherlandViz, [
+    addAlgorithm("Cohen-Sutherland",
+`Line clipping is the process of removing lines or portions of lines outside an area.
+The Cohen-Sutherland algorithm was developed in 1967 by Danny Cohen and Ivan Sutherland. It clips lines into a rectangle by dividing a two-dimensional space into 9 regions and then determining which lines and portions of lines are visible in the central region.`, CohenSutherlandViz, [
         {
             imagePath: "inputs/cohensutherland/example1.png",
             inputPath: "inputs/cohensutherland/example1.svg",
