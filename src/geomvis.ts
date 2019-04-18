@@ -191,6 +191,7 @@ export function computeSteps() {
     (document.getElementById("backbutton") as HTMLButtonElement).disabled = false;
     (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = false;
     (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = false;
+    (document.getElementById("executebutton") as HTMLButtonElement).disabled = true;
 }
 
 let discardModalConfirmAction: ((() => void) | null) = null;
@@ -252,6 +253,10 @@ function resetViz() {
     currentStep = null;
     undoStack.length = 0;
     redoStack.length = 0;
+    (document.getElementById("backbutton") as HTMLButtonElement).disabled = true;
+    (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = true;
+    (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = true;
+    (document.getElementById("executebutton") as HTMLButtonElement).disabled = false;
 }
 
 function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase) {
