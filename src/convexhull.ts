@@ -1,3 +1,4 @@
+import * as $ from "jquery";
 import * as SVG from "svg.js";
 import { VizualizationBase } from "./VizualizationBase";
 import { PseudocodeLine } from "./PseudocodeLine";
@@ -29,6 +30,7 @@ export class ConvexHullViz extends VizualizationBase {
             {code: "stack = empty_stack()", stepText: "We create an empty stack to hold the points. We'll use the stack during computation, and at the end of the algorithm the stack will contain the points of the hull."},
             {code: "find the lowest point -> P0", stepText: "To start with, we find the lowest point, that is, the one with the lowest Y value (Y axis pointing up). If there are multiple with the same Y value, we pick the leftmost one. We'll call this point P0."},
             {code: "sort the points by angle with P0", stepText: "Then we find the angle from P0 to each of the other points and sort them by that angle."},
+            {code: "add P0 and next point to stack", stepText: "We add P0 and the next point to the stack to bootstrap the algorithm."},
             {code: "for each point:", stepText: "We go through each point of the sorted list, in order. For each one we take the next steps."},
             {code: "  while stack.count() > 1 and\n      clockwise(stack.belowTop(),\n                stack.top(),\n                point):", stepText: "While the stack has at least two points, we want to check if the current point and the two before form a clockwise turn (a \"right turn\")."},
             {code: "    stack.pop()", stepText: "We found a \"right turn\" - a clockwise turn. This means that if we keep the last point, the hull turns inside and back out, which means it is not convex. So we remove that point from the stack."},
@@ -115,8 +117,20 @@ export class ConvexHullViz extends VizualizationBase {
         }
     }
 
-    public onEnableEditing(): void { return; }
-    public onDisableEditing(): void { return; }
+    public onEnableEditing() {
+        document.getElementById("topcontainer")!.style.display = "block";
+        $("#topcontainer").animate({
+            top: "10px"
+        }, 500, "swing");
+    }
+
+    public onDisableEditing() {
+        $("#topcontainer").animate({
+            top: "-200px"
+        }, 500, "swing", function() {
+            document.getElementById("topcontainer")!.style.display = "none";
+        });
+    }
 
     public computeSteps(): VizStep[] {
         const steps: VizStep[] = [];
@@ -156,20 +170,25 @@ export class ConvexHullViz extends VizualizationBase {
         const edges = new Map<svgjs.Circle, svgjs.Line>(); // runtime edges
         const haveEdges: svgjs.Circle[] = []; // generation-time edges
         const stack = [
-            sortedPoints[sortedPoints.length - 1],
+            //sortedPoints[sortedPoints.length - 1],
             p0,
             sortedPoints[0]
         ];
+        const addPoints = new VizStep(3);
+        //addPoints.acts.push(new ColorPointAction(this.canvas, sortedPoints[sortedPoints.length - 1], "white", "orange", "black", "white"));
+        addPoints.acts.push(new ColorPointAction(this.canvas, p0, "white", "orange", "black", "white"));
+        addPoints.acts.push(new ColorPointAction(this.canvas, sortedPoints[0], "white", "orange", "black", "white"));
+        steps.push(addPoints);
         // main loop
         for (const point of sortedPoints.slice(1)) {
             // highlight point under iteration
-            const highlightPoint = new VizStep(3);
+            const highlightPoint = new VizStep(4);
             highlightPoint.acts.push(new ColorPointAction(this.canvas, point, "white", "orange", "black", "white"));
             steps.push(highlightPoint);
 
             while (stack.length > 1) {
                 // hightlight points being checked
-                const checkCCW = new VizStep(4);
+                const checkCCW = new VizStep(5);
                 if (haveEdges.indexOf(stack[stack.length - 1]) === -1) {
                     checkCCW.acts.push(new ColorPointAction(this.canvas, stack[stack.length - 2], "white", "orange", "black", "white"));
                     checkCCW.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 2], stack[stack.length - 1]));
@@ -187,7 +206,7 @@ export class ConvexHullViz extends VizualizationBase {
                     circleToPoint(stack[stack.length - 1]),
                     circleToPoint(point))) {
                     // erase corner
-                    const eraseLine = new VizStep(5);
+                    const eraseLine = new VizStep(6);
                     eraseLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 2], stack[stack.length - 1]).getReverse());
                     haveEdges.splice(haveEdges.indexOf(stack[stack.length - 1]));
                     eraseLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], point).getReverse());
@@ -200,7 +219,7 @@ export class ConvexHullViz extends VizualizationBase {
                 }
             }
             if (stack.length > 0) {
-                const addLine = new VizStep(6);
+                const addLine = new VizStep(7);
                 addLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], point));
                 haveEdges.push(point);
                 steps.push(addLine);
@@ -209,7 +228,7 @@ export class ConvexHullViz extends VizualizationBase {
             stack.push(point);
         }
 
-        const addLastLine = new VizStep(7);
+        const addLastLine = new VizStep(8);
         addLastLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], p0));
         steps.push(addLastLine);
 
