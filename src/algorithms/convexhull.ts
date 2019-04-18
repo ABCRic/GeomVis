@@ -1,14 +1,14 @@
 import * as $ from "jquery";
 import * as SVG from "svg.js";
-import { VizualizationBase } from "./VizualizationBase";
-import { PseudocodeLine } from "./PseudocodeLine";
-import { VizStep } from "./VizStep";
-import { LEFT_MOUSE_BUTTON } from "./constants";
-import { pushToUndoHistory } from "./geomvis";
-import { InputAction } from "./InputAction";
-import { getSVGCoordinatesForMouseEvent } from "./utils";
-import { EntryOnlyVizAction } from "./EntryOnlyVizAction";
-import { Point } from "./geometrytypes";
+import { VizualizationBase } from "../VizualizationBase";
+import { PseudocodeLine } from "../PseudocodeLine";
+import { VizStep } from "../VizStep";
+import { LEFT_MOUSE_BUTTON } from "../constants";
+import { pushToUndoHistory } from "../geomvis";
+import { InputAction } from "../InputAction";
+import { getSVGCoordinatesForMouseEvent } from "../utils";
+import { EntryOnlyVizAction } from "../EntryOnlyVizAction";
+import { Point } from "../geometrytypes";
 
 const CIRCLE_SIZE = 10;
 

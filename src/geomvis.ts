@@ -8,12 +8,12 @@ import "svg.draw.js";
 import "svg.resize.js";
 import "svg.select.js";
 import "svg.select.js/dist/svg.select.css";
-import { CohenSutherlandViz } from "./cohensutherland";
+import { CohenSutherlandViz } from "./algorithms/cohensutherland";
 import "./deps/svg.topoly.js";
 import { VizStep } from "./VizStep";
 import { InputAction } from "./InputAction";
 import { VizualizationBase } from "./VizualizationBase";
-import { ConvexHullViz } from "./convexhull";
+import { ConvexHullViz } from "./algorithms/convexhull";
 import { classOf } from "./utils";
 
 let theSVG: SVG.Doc;

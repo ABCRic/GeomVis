@@ -1,15 +1,15 @@
 import * as $ from "jquery";
 import * as SVG from "svg.js";
-import { Line, Point, Rect } from "./geometrytypes";
-import { VizStep } from "./VizStep";
-import { linePoint1, linePoint2, svgLineLength } from "./utils";
-import { SymmetricalVizAction } from "./SymmetricalVizAction";
-import { EntryOnlyVizAction } from "./EntryOnlyVizAction";
-import { InputAction } from "./InputAction";
-import { LEFT_MOUSE_BUTTON } from "./constants";
-import { PseudocodeLine } from "./PseudocodeLine";
-import { VizualizationBase } from "./VizualizationBase";
-import { pushToUndoHistory } from "./geomvis";
+import { Line, Point, Rect } from "../geometrytypes";
+import { VizStep } from "../VizStep";
+import { linePoint1, linePoint2, svgLineLength } from "../utils";
+import { SymmetricalVizAction } from "../SymmetricalVizAction";
+import { EntryOnlyVizAction } from "../EntryOnlyVizAction";
+import { InputAction } from "../InputAction";
+import { LEFT_MOUSE_BUTTON } from "../constants";
+import { PseudocodeLine } from "../PseudocodeLine";
+import { VizualizationBase } from "../VizualizationBase";
+import { pushToUndoHistory } from "../geomvis";
 
 const pseudoCode: PseudocodeLine[] =
 [{code: "for each line:", stepText: "We take the following sequence of steps for each line we have to process. So we select any line we haven't selected yet."},
