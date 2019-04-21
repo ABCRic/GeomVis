@@ -257,6 +257,7 @@ function resetViz() {
     (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = true;
     (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = true;
     (document.getElementById("executebutton") as HTMLButtonElement).disabled = false;
+    setUndoRedoAllowed(false);
 }
 
 function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase) {
@@ -269,8 +270,7 @@ function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase
     viz.setupInput(theSVG);
 
     // setup hint text
-    const hintText = document.getElementById("hinttext")!;
-    hintText.textContent = viz.getHintText();
+    setHintText(viz.getHintText());
 
     // setup pseudo-code panel
     const pseudoCodePanel = document.getElementById("pseudocodepanel")!;
@@ -296,6 +296,21 @@ function createSVG() {
     theSVG = SVG("vizcontainer").size("100%", "100%").attr("id", "actualviz").attr("color", "#ffffff");
     theSVG.attr("preserveAspectRatio", "xMidYMid slice");
     updateSVGViewbox();
+}
+
+////////////////
+// APIs to be called by vizualizations (via VizualizationBase)
+////////////////
+export function setHintText(text: string) {
+    const hintText = document.getElementById("hinttext")!;
+    hintText.textContent = text;
+}
+
+export function setUndoRedoAllowed(allowed: boolean) {
+    const undoButton = document.getElementById("undobutton") as HTMLButtonElement;
+    const redoButton = document.getElementById("redobutton") as HTMLButtonElement;
+    undoButton.style.display = allowed ? null : "none";
+    redoButton.style.display = allowed ? null : "none";
 }
 
 export function onLoad() {

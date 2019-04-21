@@ -413,6 +413,8 @@ export class CohenSutherlandViz extends VizualizationBase {
     }
 
     public setupInput(canvas: SVG.Doc) {
+        this.setUndoRedoAllowed(true);
+
         this.lines = [];
 
         // aliases for inner class scopes

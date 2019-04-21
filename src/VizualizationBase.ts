@@ -1,5 +1,6 @@
 import { PseudocodeLine } from "./PseudocodeLine";
 import { VizStep } from "./VizStep";
+import { setHintText, setUndoRedoAllowed } from "./geomvis";
 
 export abstract class VizualizationBase {
     protected canvas: svgjs.Doc;
@@ -23,5 +24,16 @@ export abstract class VizualizationBase {
         } else if (!allowEditing && this.editingAllowed) {
             this.onDisableEditing();
         }
+    }
+
+    ////////////////
+    // UI utils
+    ////////////////
+    protected setHintText(text: string) {
+        setHintText(text);
+    }
+
+    protected setUndoRedoAllowed(allowed: boolean) {
+        setUndoRedoAllowed(allowed);
     }
 }

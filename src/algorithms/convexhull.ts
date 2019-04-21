@@ -46,6 +46,8 @@ export class ConvexHullViz extends VizualizationBase {
     public setupCanvas(canvas: svgjs.Doc): void { return; }
 
     public setupInput(canvas: svgjs.Doc): void {
+        this.setUndoRedoAllowed(true);
+
         canvas.on("mousedown", (event: MouseEvent) => {
             if (!this.editingAllowed) return;
 
