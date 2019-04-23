@@ -1,4 +1,4 @@
-import * as SVG from "svg.js";
+import SVG from "svg.js";
 import { Point } from "./geometrytypes";
 
 export function svgLineLength(line: SVG.Line): number {
@@ -32,8 +32,8 @@ export function classOf<T>(o: T): any {
 
 // computes angle of ABC in radians
 export function angleRadians(A: Point, C: Point, B: Point) {
-    const b = {x: B.x - C.x, y: B.y - C.y};
-    const a = {x: A.x - C.x, y: A.y - C.y};
+    const a = {x: A.x - C.x, y: A.y - C.y}; // vector from A to C
+    const b = {x: B.x - C.x, y: B.y - C.y}; // vector from B to C
 
-    return Math.atan2(a.x*b.y - a.y*b.x, a.x*b.x + a.y*b.y);
+    return Math.atan2(a.x * b.y - a.y * b.x, a.x * b.x + a.y * b.y);
 }

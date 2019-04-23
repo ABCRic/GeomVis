@@ -1,8 +1,8 @@
-import * as $ from "jquery";
+import $ from "jquery";
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/js/all.min.js";
-import * as SVG from "svg.js";
+import SVG from "svg.js";
 import "svg.draggable.js";
 import "svg.draw.js";
 import "svg.resize.js";

@@ -172,12 +172,10 @@ export class ConvexHullViz extends VizualizationBase {
         const edges = new Map<svgjs.Circle, svgjs.Line>(); // runtime edges
         const haveEdges: svgjs.Circle[] = []; // generation-time edges
         const stack = [
-            //sortedPoints[sortedPoints.length - 1],
             p0,
             sortedPoints[0]
         ];
         const addPoints = new VizStep(3);
-        //addPoints.acts.push(new ColorPointAction(this.canvas, sortedPoints[sortedPoints.length - 1], "white", "orange", "black", "white"));
         addPoints.acts.push(new ColorPointAction(this.canvas, p0, "white", "orange", "black", "white"));
         addPoints.acts.push(new ColorPointAction(this.canvas, sortedPoints[0], "white", "orange", "black", "white"));
         steps.push(addPoints);

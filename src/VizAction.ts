@@ -1,4 +1,4 @@
-import * as SVG from "svg.js";
+import SVG from "svg.js";
 
 export abstract class VizAction {
     protected canvas: SVG.Doc;
