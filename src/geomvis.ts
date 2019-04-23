@@ -15,6 +15,7 @@ import { InputAction } from "./InputAction";
 import { VizualizationBase } from "./VizualizationBase";
 import { ConvexHullViz } from "./algorithms/convexhull";
 import { classOf } from "./utils";
+import { PointInPolygonViz } from "./algorithms/pointinpolygon";
 
 let theSVG: SVG.Doc;
 
@@ -344,7 +345,10 @@ Graham scan is an O(n log n) algorithm for finding a convex hull. The algorithm 
         }
     ]);
     addAlgorithm("Line Segment Intersection", "WIP", null!, []);
-    addAlgorithm("Point in Polygon", "WIP", null!, []);
+    addAlgorithm("Point in Polygon",
+`A Point in Polygon algorithm takes a polygon and a point and determines if the point is inside the polygon.
+There are several ways to this - the algorithm shown here uses the winding number of the point with respect to the polygon, which corresponds to the total number of times the outline of the polygon travels counterclockwise around the point. If the number is zero, the point must be outside, otherwise it must be inside.
+This algorithm is used in technologies such as SVG, which powers this visualization.`, PointInPolygonViz, []);
     addAlgorithm("Cohen-Sutherland",
 `Line clipping is the process of removing lines or portions of lines outside an area.
 The Cohen-Sutherland algorithm was developed in 1967 by Danny Cohen and Ivan Sutherland. It clips lines into a rectangle by dividing a two-dimensional space into 9 regions and then determining which lines and portions of lines are visible in the central region.`, CohenSutherlandViz, [

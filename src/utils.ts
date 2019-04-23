@@ -29,3 +29,11 @@ export function getSVGCoordinatesForMouseEvent(canvas: SVG.Doc, event: MouseEven
 export function classOf<T>(o: T): any {
     return o.constructor;
 }
+
+// computes angle of ABC in radians
+export function angleRadians(A: Point, C: Point, B: Point) {
+    const b = {x: B.x - C.x, y: B.y - C.y};
+    const a = {x: A.x - C.x, y: A.y - C.y};
+
+    return Math.atan2(a.x*b.y - a.y*b.x, a.x*b.x + a.y*b.y);
+}

@@ -22,6 +22,9 @@ declare namespace svgjs {
     interface Line {
         draw(any: any, any2?: any): any;
     }
+    interface Polygon {
+        draw(str?: string): any;
+    }
 
     // add methods we're using safely on animation
     interface Animation {
