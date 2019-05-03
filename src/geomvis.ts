@@ -16,6 +16,7 @@ import { VizualizationBase } from "./VizualizationBase";
 import { ConvexHullViz } from "./algorithms/convexhull";
 import { classOf } from "./utils";
 import { PointInPolygonViz } from "./algorithms/pointinpolygon";
+import { SutherlandHodgmanViz } from "./algorithms/sutherlandhodgman";
 
 let theSVG: SVG.Doc;
 
@@ -400,5 +401,5 @@ The Cohen-Sutherland algorithm was developed in 1967 by Danny Cohen and Ivan Sut
             name: "Example 6"
         }
     ]);
-    addAlgorithm("Sutherland-Hodgman", "WIP", null!, []);
+    addAlgorithm("Sutherland-Hodgman", "WIP", SutherlandHodgmanViz, []);
 }
