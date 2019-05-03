@@ -21,7 +21,7 @@ export class PointInPolygonViz extends VizualizationBase {
             {code: "for each edge (P1, P2):", stepText: "We take each edge of the polygon in order, either clockwise or counterclockwise."},
             {code: "  angle_sum += angle(P1, P2, p)", stepText: "Measure the angle between the points, from the point of view of P0. Add it to the sum."},
             {code: "winding_num = angle_sum / 2*pi", stepText: "The winding number is how many turns we took in total. A turn is equal to 2π radians, so by dividing the sum by 2π we get the number of turns."},
-            {code: "return winding_num !≈ 0", stepText: ""}, // text for this step goes in VizStep extra text
+            {code: "return winding_num !≈ 0", stepText: "Finally we check if the winding number is approximately zero, which means the point is outside, or otherwise, which means the point is inside. The approximate check is required due to possible floating-point approximation errors while calculating the angles."},
         ];
     }
 
@@ -161,7 +161,7 @@ export class PointInPolygonViz extends VizualizationBase {
             returnState.extraText = "The winding number is 0, therefore the points is outside.";
             returnState.acts.push(new ColorPointAction(this.canvas, this.point!, "black", "red"));
         } else {
-            returnState.extraText = `The winding number is ${windingNumber.toFixed(0)} therefore the point is inside.`;
+            returnState.extraText = `The winding number is ${windingNumber.toFixed(0)}, therefore the point is inside.`;
             returnState.acts.push(new ColorPointAction(this.canvas, this.point!, "black", "green"));
         }
         steps.push(returnState);
