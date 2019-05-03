@@ -42,6 +42,14 @@
             .white-border {
                 border: 2px solid white;
             }
+
+            /* add state arrow to collapsing elements panels */
+            [data-toggle="collapse"] .collapse-indicator {
+                transition: .3s transform ease-in-out;
+            }
+            [data-toggle="collapse"].collapsed .collapse-indicator {
+                transform: rotate(180deg);
+            }
         </style>
     </head>
     <body id="body" class="row h-100" onload="geomvis.onLoad()">
@@ -86,10 +94,11 @@
                 <div class="card">
                     <div class="card-header" id="algoHeaderPlaceholder">
                         <h2 class="mb-0">
-                            <button id="algoButtonPlaceholder" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#algoCollapsePlaceholder"
+                            <div id="algoButtonPlaceholder" class="btn d-flex justify-content-between align-items-center collapsed" type="button" data-toggle="collapse" data-target="#algoCollapsePlaceholder"
                                 aria-expanded="false" aria-controls="collapseOne">
-                                algorithm name
-                            </button>
+                                <div id="algoNamePlaceholder">algorithm name</div>
+                                <i class="fa fa-chevron-up collapse-indicator"></i>
+                            </div>
                         </h2>
                     </div>
             
@@ -97,9 +106,12 @@
                         <div id="algoBody" class="card-body">
                             <p id="algoText" style="white-space: pre-wrap">algorithm description</p>
 
-                            <h5>Examples</h5>
-                            <div id="algoExamplesContainer" class="row">
-    
+                            <div id="algoExamplesCollapse" class="d-flex justify-content-between align-items-center collapsed" data-toggle="collapse" data-target="#algoExamplesContainer">
+                                <h5>Examples</h5>
+                                <i class="fa fa-chevron-up collapse-indicator"></i>
+                            </div>
+                            <div id="algoExamplesContainer" class="row collapse">
+                                
                             </div>
                         </div>
                     </div>

@@ -225,7 +225,7 @@ function addAlgorithm(name: string, description: string, vizClass: new (canvas: 
     algoButton.id = "algoButton" + algorithmNum;
     algoButton.setAttribute("data-target", "#algoCollapse" + algorithmNum);
     algoButton.setAttribute("aria-controls", "#algoCollapse" + algorithmNum);
-    algoButton.textContent = name;
+    algoButton.querySelector("#algoNamePlaceholder")!.textContent = name;
     algoButton.addEventListener("click", () => {
         activateVizualizer(vizClass);
     });
@@ -235,9 +235,15 @@ function addAlgorithm(name: string, description: string, vizClass: new (canvas: 
     const algoText = algoCollapse.querySelector("#algoText") as HTMLDivElement;
     algoText.textContent = description;
 
+    // configure algorithm collapse element
+    const examplesContainer = clone.querySelector("#algoExamplesContainer") as HTMLDivElement;
+    const algoExampleCollapse = clone.querySelector("#algoExamplesCollapse") as HTMLDivElement;
+    algoExampleCollapse.setAttribute("data-target", "#algoExamplesContainer" + algorithmNum);
+    algoExampleCollapse.setAttribute("aria-controls", "#algoExamplesContainer" + algorithmNum);
+
     // fill examples
     const exampleTemplate = document.getElementById("algoExampleTemplate") as HTMLTemplateElement;
-    const examplesContainer = clone.querySelector("#algoExamplesContainer") as HTMLDivElement;
+    examplesContainer.id = "algoExamplesContainer" + algorithmNum;
     for (const example of examples) {
         const exampleClone = document.importNode(exampleTemplate.content, true);
 
