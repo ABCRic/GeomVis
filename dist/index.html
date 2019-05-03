@@ -139,7 +139,10 @@
             <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
             <div id="bottompane" class="col-12 position-absolute white-border" style="width: 875px; bottom: 10px; background: #c0dab4">
                 <div class="row p-1 white-border">
-                    <div class="col-4">
+                    <div class="col-4 btn-group">
+                        <button id="resetbutton" type="button" class="btn btn-outline-dark bottompanel-button w-50" onclick="geomvis.reset()">
+                            <i class="fas fa-sync"></i> Reset
+                        </button>
                         <button id="loadbutton" type="button" class="btn btn-outline-dark bottompanel-button w-50" onclick="fileuploader.click()">
                             <i class="fas fa-upload"></i> Load input
                         </button>

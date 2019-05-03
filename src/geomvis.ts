@@ -28,6 +28,7 @@ let steps: VizStep[] = [];
 let currentVizStep = -1;
 
 let viz: VizualizationBase;
+let vizType: new (canvas: SVG.Doc) => VizualizationBase;
 
 ////////////////
 // undo/redo methods
@@ -204,6 +205,11 @@ export function discardModalConfirm() {
     }
 }
 
+export function reset() {
+    // reinstance current visualization type
+    activateVizualizer(vizType);
+}
+
 ////////////////
 // UI filling
 ////////////////
@@ -258,6 +264,10 @@ function resetViz() {
     (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = true;
     (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = true;
     (document.getElementById("executebutton") as HTMLButtonElement).disabled = false;
+    document.getElementById("topcontainer")!.style.display = "block";
+    $("#topcontainer").animate({
+        top: "10px"
+    }, 500, "swing");
     setUndoRedoAllowed(false);
 }
 
@@ -267,6 +277,7 @@ function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase
     theSVG.remove();
     createSVG();
     viz = new vizClass(theSVG);
+    vizType = vizClass;
     viz.setupCanvas(theSVG);
     viz.setupInput(theSVG);
 
