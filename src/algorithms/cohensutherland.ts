@@ -179,7 +179,7 @@ class DeleteLineAction extends EntryOnlyVizAction {
     }
 }
 
-export function cohenSutherlandComputeSteps(canvas: SVG.Doc, rect: SVG.Rect, lines: SVG.Line[]): VizStep[] {
+function cohenSutherlandComputeSteps(canvas: SVG.Doc, rect: SVG.Rect, lines: SVG.Line[]): VizStep[] {
     const rectData = new Rect(new Point(rect.x(), rect.y()), new Point(rect.x() + rect.width(), rect.y() + rect.height()));
 
     let steps: VizStep[] = [];
