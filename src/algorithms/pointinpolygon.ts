@@ -4,7 +4,7 @@ import { VizualizationBase } from "../VizualizationBase";
 import { PseudocodeLine } from "../PseudocodeLine";
 import { VizStep } from "../VizStep";
 import { EntryOnlyVizAction } from "../EntryOnlyVizAction";
-import { getSVGCoordinatesForMouseEvent, angleRadians } from "../utils";
+import { getSVGCoordinatesForMouseEvent, angleRadians, pointsFromPolygon } from "../utils";
 import { RIGHT_MOUSE_BUTTON, ENTER_KEY, LEFT_MOUSE_BUTTON } from "../constants";
 import { Point } from "../geometrytypes";
 import { AddElementAction, TransformElementAction } from "../Actions";
@@ -102,7 +102,7 @@ export class PointInPolygonViz extends VizualizationBase {
         const steps: VizStep[] = [];
 
         const pivotLocation = new Point(this.point!.cx(), this.point!.cy());
-        const polygonPoints = (this.polygon!.array().value as unknown as number[][]).map(p => new Point(p[0], p[1]));
+        const polygonPoints = pointsFromPolygon(this.polygon!);
         const circles: svgjs.Circle[] = [];
 
         const showWindingNum = new VizStep(0);

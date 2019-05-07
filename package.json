@@ -10,6 +10,7 @@
     "bootstrap": "^4.3.1",
     "d3": "^5.9.2",
     "jquery": "^3.3.1",
+    "line-intersect": "^2.2.0",
     "popper.js": "^1.14.7",
     "svg.draggable.js": "^2.2.2",
     "svg.draw.js": "^2.0.3",

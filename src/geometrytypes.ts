@@ -17,6 +17,10 @@ export class Line {
 }
 
 export class Rect {
+    public static fromSvgRect(svgRect: svgjs.Rect) {
+        return new Rect(new Point(svgRect.x(), svgRect.y()), new Point(svgRect.x() + svgRect.width(), svgRect.y() + svgRect.height()));
+    }
+
     public topLeft: Point;
     public bottomRight: Point;
     constructor(topLeft: Point, bottomRight: Point) {

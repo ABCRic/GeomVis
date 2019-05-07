@@ -3,13 +3,13 @@ import SVG from "svg.js";
 import { VizualizationBase } from "../VizualizationBase";
 import { PseudocodeLine } from "../PseudocodeLine";
 import { VizStep } from "../VizStep";
-import { EntryOnlyVizAction } from "../EntryOnlyVizAction";
-import { getSVGCoordinatesForMouseEvent, angleRadians } from "../utils";
-import { RIGHT_MOUSE_BUTTON, ENTER_KEY, LEFT_MOUSE_BUTTON } from "../constants";
-import { Point } from "../geometrytypes";
-import { AddElementAction, TransformElementAction } from "../Actions";
+import { angleRadians, pointsFromPolygon, rectEdgesClockwise, intersectionPoint, scaleLine } from "../utils";
+import { RIGHT_MOUSE_BUTTON, ENTER_KEY } from "../constants";
+import { AddElementAction, AddElementOnceAction } from "../Actions";
 import { InputAction } from "../InputAction";
 import { pushToUndoHistory } from "../geomvis";
+import { Rect, Point, Line } from "../geometrytypes";
+import { SymmetricalVizAction } from "../SymmetricalVizAction";
 
 export class SutherlandHodgmanViz extends VizualizationBase {
     private rect!: SVG.Rect;
@@ -21,7 +21,17 @@ export class SutherlandHodgmanViz extends VizualizationBase {
 
     public getPseudocode(): PseudocodeLine[] {
         return [
-            
+            {code: "outlist = input", stepText: "<b>This algorithm uses the output of the previous step as the input to the next step.</b> The input for the initial step is the input polygon itself."},
+            {code: "for each clipEdge in clipPolygon:", stepText: "We iterate over each edge of the clipping polygon - in this case, a simple rectangle - but the procedure is the same for all convex clipping polygons."},
+            {code: "  inlist = outlist", stepText: "This algorithm uses the output of the previous step as the input to the next step. So we copy the output from the previous step to the input..."},
+            {code: "  outlist.clear()", stepText: "...and clear the output so we can use it during the current step."},
+            {code: "  for each P_start, P_end in inlist:", stepText: "We start iterating through the edges in the input. Each edge runs from P_start to P_end."},
+            {code: "    if P_end is inside:", stepText: "Is the end point on the inside relative to the clip edge?"},
+            {code: "      if P_start is outside:", stepText: "The end point is inside. Is the start point outside?"},
+            {code: "        outlist.add(intersection(P_start,P_end,clipEdge))", stepText: "The end point is inside, but the start point is outside. Therefore we clip the edge at the intersection with the clipping edge and the resulting edge runs from the intersection to P_end. So we insert the intersection point in the output."},
+            {code: "      outlist.add(P_end)", stepText: "Whether the start point is inside or not, as the point is inside we insert it in the output."},
+            {code: "    else if P_start is inside:", stepText: "Is the start point on the inside relative to the clip edge?"},
+            {code: "      outlist.add(intersection(P_start,P_end,clipEdge))", stepText: "The start point is inside, but the end point is not. So we clip the edge at the intersection with the clipping edge. The resulting edge runs from the start to the intersection point. Note that the start point was already added in a previous step."},
         ];
     }
 
@@ -230,6 +240,73 @@ export class SutherlandHodgmanViz extends VizualizationBase {
     public computeSteps(): VizStep[] {
         const steps: VizStep[] = [];
 
+        const inside = (clipEdge: Line, point: Point) =>
+            angleRadians(clipEdge.p2, clipEdge.p1, point) >= 0; // angle between clip edge and point must be clockwise
+
+        const input = pointsFromPolygon(this.polygon);
+        const outlist: Point[] = input.slice();
+        steps.push(new VizStep(0));
+
+        const rectData = Rect.fromSvgRect(this.rect);
+
+        steps.push(new VizStep(1));
+        let c = 0;
+        for (const clipLine of rectEdgesClockwise(rectData)) {
+            const clipAxis = scaleLine(clipLine, 100000); // we scale the clip line to be like an axis for intersection point calculation
+
+            const inlist = outlist.slice();
+            const outputTransferStep = new VizStep(2);
+            outputTransferStep.acts.push(new AddElementAction(this.canvas,
+                this.canvas.polygon(inlist.map(p => [p.x, p.y])).stroke(["green", "yellow", "red", "blue"][c]).fill({opacity: 0})));
+            steps.push(outputTransferStep);
+            outlist.length = 0;
+            steps.push(new VizStep(3));
+c++;
+            // iterate over edges of input polygon
+            for (let i = 0; i < inlist.length; i++) {
+                // get endpoints of current edge
+                const P_end = inlist[i];
+                const P_start = i - 1 < 0 ? inlist[inlist.length - 1] : inlist[i - 1];
+                const highlightLine = new VizStep(4);
+                // highlight that line
+                highlightLine.acts.push(new AddElementOnceAction(this.canvas, this.canvas.line(P_start.x, P_start.y, P_end.x, P_end.y).stroke("orange")));
+                steps.push(highlightLine);
+
+                const highlightPEnd = new VizStep(5);
+                highlightPEnd.acts.push(new HighlightPointAction(this.canvas, P_end));
+                steps.push(highlightPEnd);
+                if (inside(clipLine, P_end)) {
+                    const highlightPStart = new VizStep(6);
+                    highlightPStart.acts.push(new HighlightPointAction(this.canvas, P_start));
+                    steps.push(highlightPStart);
+                    if (!inside(clipLine, P_start)) {
+                        const intersect = intersectionPoint(new Line(P_start, P_end), clipAxis)!;
+                        const step = new VizStep(7);
+                        step.acts.push(new AddElementOnceAction(this.canvas, this.canvas.circle(10).center(intersect.x, intersect.y)));
+                        steps.push(step);
+                        outlist.push(intersect);
+                    }
+                    outlist.push(P_end);
+                } else {
+                    const highlightPStart = new VizStep(9);
+                    highlightPStart.acts.push(new HighlightPointAction(this.canvas, P_start));
+                    steps.push(highlightPStart);
+                    if (inside(clipLine, P_start)) {
+                        const intersect = intersectionPoint(new Line(P_start, P_end), clipAxis)!;
+                        const step = new VizStep(10);
+                        step.acts.push(new AddElementOnceAction(this.canvas, this.canvas.circle(10).center(intersect.x, intersect.y)));
+                        steps.push(step);
+                        outlist.push(intersect);
+                    }
+                }
+            }
+        }
+
+        const showFinalOutputStep = new VizStep(2);
+        showFinalOutputStep.acts.push(new AddElementAction(this.canvas,
+            this.canvas.polygon(outlist.map(p => [p.x, p.y])).stroke("magenta").fill({color: "magenta", opacity: 1})));
+        steps.push(showFinalOutputStep);
+
         return steps;
     }
 
@@ -255,5 +332,23 @@ export class SutherlandHodgmanViz extends VizualizationBase {
             this.rect.y() + this.rect.height(),
             this.rect.x() + this.rect.width() + guidlinePadding,
             this.rect.y() + this.rect.height());
+    }
+}
+
+class HighlightPointAction extends SymmetricalVizAction {
+    private point: Point;
+    private circle: SVG.Circle | null = null;
+
+    constructor(canvas: SVG.Doc, point: Point) {
+        super(canvas);
+        this.point = point;
+    }
+
+    public enter(): void {
+        this.circle = this.canvas.circle(25).center(this.point.x, this.point.y).fill("#29d8db");
+        this.circle.animate(500, "<").size(7.5, 7.5);
+    }
+    public exit(): void {
+        this.circle!.remove();
     }
 }
