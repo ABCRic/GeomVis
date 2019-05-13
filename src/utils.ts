@@ -78,3 +78,7 @@ export function scaleLine(l: Line, factor: number): Line {
     };
     return new Line(newP1, newP2);
 }
+
+export function pointArrayToSVGPointArray(points: Point[]): svgjs.PointArrayAlias {
+    return points.map(p => [p.x, p.y]);
+}

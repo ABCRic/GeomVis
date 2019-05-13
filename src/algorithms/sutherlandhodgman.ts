@@ -3,13 +3,14 @@ import SVG from "svg.js";
 import { VizualizationBase } from "../VizualizationBase";
 import { PseudocodeLine } from "../PseudocodeLine";
 import { VizStep } from "../VizStep";
-import { angleRadians, pointsFromPolygon, rectEdgesClockwise, intersectionPoint, scaleLine } from "../utils";
+import { angleRadians, pointsFromPolygon, rectEdgesClockwise, intersectionPoint, scaleLine, pointArrayToSVGPointArray } from "../utils";
 import { RIGHT_MOUSE_BUTTON, ENTER_KEY } from "../constants";
-import { AddElementAction, AddElementOnceAction } from "../Actions";
+import { AddElementAction, AddElementOnceAction, TransformElementAction } from "../Actions";
 import { InputAction } from "../InputAction";
 import { pushToUndoHistory } from "../geomvis";
 import { Rect, Point, Line } from "../geometrytypes";
 import { SymmetricalVizAction } from "../SymmetricalVizAction";
+import { EntryOnlyVizAction } from "../EntryOnlyVizAction";
 
 export class SutherlandHodgmanViz extends VizualizationBase {
     private rect!: SVG.Rect;
@@ -250,56 +251,111 @@ export class SutherlandHodgmanViz extends VizualizationBase {
         const rectData = Rect.fromSvgRect(this.rect);
 
         steps.push(new VizStep(1));
-        let c = 0;
+
+        let previousPolygonAdd: EntryOnlyVizAction = new AddElementAction(this.canvas, this.polygon);
+        let previousPolylineAdd: EntryOnlyVizAction | null = null;
+        this.polygon.show();
+
         for (const clipLine of rectEdgesClockwise(rectData)) {
             const clipAxis = scaleLine(clipLine, 100000); // we scale the clip line to be like an axis for intersection point calculation
 
             const inlist = outlist.slice();
             const outputTransferStep = new VizStep(2);
-            outputTransferStep.acts.push(new AddElementAction(this.canvas,
-                this.canvas.polygon(inlist.map(p => [p.x, p.y])).stroke(["green", "yellow", "red", "blue"][c]).fill({opacity: 0})));
+
+            // highlight the clip line
+            const highlightClipline = new AddElementAction(this.canvas, this.canvas.line(clipAxis.p1.x, clipAxis.p1.y, clipAxis.p2.x, clipAxis.p2.y).stroke({color: "red", width: 2}));
+            outputTransferStep.acts.push(highlightClipline);
+
+            // remove old polygon
+            outputTransferStep.acts.push(previousPolygonAdd.getReverse());
+            if (previousPolylineAdd)
+                outputTransferStep.acts.push(previousPolylineAdd.getReverse());
+
+            // add new polygon
+            const newPolyAct = new AddElementAction(this.canvas,
+                this.canvas.polygon(pointArrayToSVGPointArray(inlist)).stroke("darkgrey").fill({opacity: 0}));
+            previousPolygonAdd = newPolyAct;
+            // add path we'll be building using outlist
+            const newLineAct = new AddElementAction(this.canvas,
+                this.canvas.polyline([]).stroke({color: "black", width: 2}).fill({opacity: 0}));
+            previousPolylineAdd = newLineAct;
+            outputTransferStep.acts.push(newPolyAct);
+            outputTransferStep.acts.push(newLineAct);
             steps.push(outputTransferStep);
             outlist.length = 0;
             steps.push(new VizStep(3));
-c++;
+
             // iterate over edges of input polygon
             for (let i = 0; i < inlist.length; i++) {
                 // get endpoints of current edge
                 const P_end = inlist[i];
                 const P_start = i - 1 < 0 ? inlist[inlist.length - 1] : inlist[i - 1];
-                const highlightLine = new VizStep(4);
-                // highlight that line
-                highlightLine.acts.push(new AddElementOnceAction(this.canvas, this.canvas.line(P_start.x, P_start.y, P_end.x, P_end.y).stroke("orange")));
-                steps.push(highlightLine);
 
-                const highlightPEnd = new VizStep(5);
-                highlightPEnd.acts.push(new HighlightPointAction(this.canvas, P_end));
-                steps.push(highlightPEnd);
+                // highlight that line
+                steps.push(new VizStep(4, [new AddElementOnceAction(this.canvas, this.canvas.line(P_start.x, P_start.y, P_end.x, P_end.y).stroke({color: "orange", width: 2}))]));
+
+                // highlight end point
+                steps.push(new VizStep(5, [new HighlightPointAction(this.canvas, P_end)]));
+                // check end point
                 if (inside(clipLine, P_end)) {
-                    const highlightPStart = new VizStep(6);
-                    highlightPStart.acts.push(new HighlightPointAction(this.canvas, P_start));
-                    steps.push(highlightPStart);
+                    // highlight start point
+                    steps.push(new VizStep(6, [new HighlightPointAction(this.canvas, P_start)]));
+
+                    // check if start point is outside
                     if (!inside(clipLine, P_start)) {
+                        // start point is outside, add intersection point
                         const intersect = intersectionPoint(new Line(P_start, P_end), clipAxis)!;
                         const step = new VizStep(7);
                         step.acts.push(new AddElementOnceAction(this.canvas, this.canvas.circle(10).center(intersect.x, intersect.y)));
-                        steps.push(step);
+                        const prevOutlist = outlist.slice();
                         outlist.push(intersect);
+                        const currentOutlist = outlist.slice();
+                        step.acts.push(
+                            new TransformElementAction(this.canvas, newLineAct.getElement(),
+                                el => el.plot(pointArrayToSVGPointArray(currentOutlist)),
+                                el => el.plot(pointArrayToSVGPointArray(prevOutlist))
+                            ));
+                        steps.push(step);
                     }
+
+                    // push end point
+                    const step = new VizStep(8);
+                    step.acts.push(new AddElementOnceAction(this.canvas, this.canvas.circle(10).center(P_end.x, P_end.y)));
+                    const prevOutlist = outlist.slice();
                     outlist.push(P_end);
+                    const currentOutlist = outlist.slice();
+                    step.acts.push(
+                        new TransformElementAction(this.canvas, newLineAct.getElement(),
+                            el => {el.plot(pointArrayToSVGPointArray(currentOutlist)); console.log(el.array()); },
+                            el => el.plot(pointArrayToSVGPointArray(prevOutlist))
+                        ));
+                    steps.push(step);
                 } else {
-                    const highlightPStart = new VizStep(9);
-                    highlightPStart.acts.push(new HighlightPointAction(this.canvas, P_start));
-                    steps.push(highlightPStart);
+                    // end point is outside
+
+                    // highlight start point
+                    steps.push(new VizStep(9, [new HighlightPointAction(this.canvas, P_start)]));
+
+                    // check if start point is inside
                     if (inside(clipLine, P_start)) {
                         const intersect = intersectionPoint(new Line(P_start, P_end), clipAxis)!;
                         const step = new VizStep(10);
                         step.acts.push(new AddElementOnceAction(this.canvas, this.canvas.circle(10).center(intersect.x, intersect.y)));
-                        steps.push(step);
+                        const prevOutlist = outlist.slice();
                         outlist.push(intersect);
+                        const currentOutlist = outlist.slice();
+                        step.acts.push(
+                            new TransformElementAction(this.canvas, newLineAct.getElement(),
+                                el => el.plot(pointArrayToSVGPointArray(currentOutlist)),
+                                el => el.plot(pointArrayToSVGPointArray(prevOutlist))
+                            ));
+                        steps.push(step);
                     }
                 }
             }
+
+            // unhighlight clip line
+            steps.push(new VizStep(1, [highlightClipline.getReverse()]));
         }
 
         const showFinalOutputStep = new VizStep(2);
