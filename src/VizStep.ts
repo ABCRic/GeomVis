@@ -1,11 +1,12 @@
 import { VizAction } from "./VizAction";
 export class VizStep {
-    public acts: VizAction[] = [];
+    public acts: VizAction[];
     public codeLine: number;
     public extraText: string | null = null;
 
-    constructor(codeLine: number) {
+    constructor(codeLine: number, acts: VizAction[] = []) {
         this.codeLine = codeLine;
+        this.acts = acts;
     }
 
     public stepFromPrevious(): void {
