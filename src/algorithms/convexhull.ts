@@ -149,9 +149,9 @@ export class ConvexHullViz extends VizualizationBase {
                 p0 = point;
             }
         }
-        const selectP0 = new VizStep(1);
-        selectP0.acts.push(new NumberPointAction(this.canvas, p0, 0));
-        steps.push(selectP0);
+
+        // select P0
+        steps.push(new VizStep(1, [new NumberPointAction(this.canvas, p0, 0)]));
 
         // order points by angle
         const pointsCopy = this.points.splice(0);
@@ -162,11 +162,11 @@ export class ConvexHullViz extends VizualizationBase {
                 const cotanB = -(b.cx() - p0.cx()) / (b.cy() - p0.cy());
                 return cotanA - cotanB < 0 ? 1 : -1;
             });
+        // highlight each point
         for (const [i, point] of sortedPoints.entries()) {
-            const highlightPoint = new VizStep(2);
-            highlightPoint.acts.push(new NumberPointAction(this.canvas, point, i + 1));
-            highlightPoint.acts.push(new ProjectBeamAction(this.canvas, p0, point));
-            steps.push(highlightPoint);
+            steps.push(new VizStep(2, [
+                new NumberPointAction(this.canvas, point, i + 1),
+                new ProjectBeamAction(this.canvas, p0, point)]));
         }
 
         const edges = new Map<svgjs.Circle, svgjs.Line>(); // runtime edges
@@ -175,16 +175,15 @@ export class ConvexHullViz extends VizualizationBase {
             p0,
             sortedPoints[0]
         ];
-        const addPoints = new VizStep(3);
-        addPoints.acts.push(new ColorPointAction(this.canvas, p0, "white", "orange", "black", "white"));
-        addPoints.acts.push(new ColorPointAction(this.canvas, sortedPoints[0], "white", "orange", "black", "white"));
-        steps.push(addPoints);
+
+        // add initial points
+        steps.push(new VizStep(3, [
+            new ColorPointAction(this.canvas, p0, "white", "orange", "black", "white"),
+            new ColorPointAction(this.canvas, sortedPoints[0], "white", "orange", "black", "white")]));
         // main loop
         for (const point of sortedPoints.slice(1)) {
             // highlight point under iteration
-            const highlightPoint = new VizStep(4);
-            highlightPoint.acts.push(new ColorPointAction(this.canvas, point, "white", "orange", "black", "white"));
-            steps.push(highlightPoint);
+            steps.push(new VizStep(4, [new ColorPointAction(this.canvas, point, "white", "orange", "black", "white")]));
 
             while (stack.length > 1) {
                 // hightlight points being checked
@@ -219,18 +218,16 @@ export class ConvexHullViz extends VizualizationBase {
                 }
             }
             if (stack.length > 0) {
-                const addLine = new VizStep(7);
-                addLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], point));
+                // add line to new point
+                steps.push(new VizStep(7, [new AddLineAction(this.canvas, edges, stack[stack.length - 1], point)]));
                 haveEdges.push(point);
-                steps.push(addLine);
             }
 
             stack.push(point);
         }
 
-        const addLastLine = new VizStep(8);
-        addLastLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], p0));
-        steps.push(addLastLine);
+        // add last line
+        steps.push(new VizStep(8, [new AddLineAction(this.canvas, edges, stack[stack.length - 1], p0)]));
 
         return steps;
     }
