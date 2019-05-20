@@ -17,6 +17,7 @@ import { ConvexHullViz } from "./algorithms/convexhull";
 import { classOf } from "./utils";
 import { PointInPolygonViz } from "./algorithms/pointinpolygon";
 import { SutherlandHodgmanViz } from "./algorithms/sutherlandhodgman";
+import { LineSegmentIntersectionViz } from "./algorithms/linesegmentintersection";
 
 let theSVG: SVG.Doc;
 
@@ -362,7 +363,7 @@ Graham scan is an O(n log n) algorithm for finding a convex hull. The algorithm 
             name: "Example 3"
         }
     ]);
-    addAlgorithm("Line Segment Intersection", "WIP", null!, []);
+    addAlgorithm("Line Segment Intersection", "WIP", LineSegmentIntersectionViz, []);
     addAlgorithm("Point in Polygon",
 `A Point in Polygon algorithm takes a polygon and a point and determines if the point is inside the polygon.
 There are several ways to this - the algorithm shown here uses the winding number of the point with respect to the polygon, which corresponds to the total number of times the outline of the polygon travels counterclockwise around the point. If the number is zero, the point must be outside, otherwise it must be inside.
