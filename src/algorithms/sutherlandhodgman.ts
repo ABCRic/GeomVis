@@ -360,7 +360,7 @@ export class SutherlandHodgmanViz extends VizualizationBase {
 
         const showFinalOutputStep = new VizStep(2);
         showFinalOutputStep.acts.push(new AddElementAction(this.canvas,
-            this.canvas.polygon(outlist.map(p => [p.x, p.y])).stroke("magenta").fill({color: "magenta", opacity: 1})));
+            this.canvas.polygon(outlist.map(p => [p.x, p.y])).stroke("black").fill({color: "black", opacity: 1})));
         steps.push(showFinalOutputStep);
 
         return steps;
@@ -401,7 +401,7 @@ class HighlightPointAction extends SymmetricalVizAction {
     }
 
     public enter(): void {
-        this.circle = this.canvas.circle(25).center(this.point.x, this.point.y).fill("#29d8db");
+        this.circle = this.canvas.circle(25).center(this.point.x, this.point.y).fill("orange");
         this.circle.animate(500, "<").size(7.5, 7.5);
     }
     public exit(): void {
