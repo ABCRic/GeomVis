@@ -13,7 +13,7 @@ import { Point } from "../geometrytypes";
 const CIRCLE_SIZE = 10;
 
 function circleToPoint(c: svgjs.Circle): Point {
-    return {x: c.cx(), y: c.cy()};
+    return new Point(c.cx(), c.cy());
 }
 
 function clockwise(p1: Point, p2: Point, p3: Point) {

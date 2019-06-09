@@ -1,13 +1,24 @@
+import { linePoint1, linePoint2 } from "./utils";
+
 export class Point {
     public x: number;
     public y: number;
+
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
     }
+
+    public toArray(): [number, number] {
+        return [this.x, this.y];
+    }
 }
 
 export class Line {
+    public static fromSvgLine(svgLine: svgjs.Line) {
+        return new Line(linePoint1(svgLine), linePoint2(svgLine));
+    }
+
     public p1: Point;
     public p2: Point;
     constructor(p1: Point, p2: Point) {

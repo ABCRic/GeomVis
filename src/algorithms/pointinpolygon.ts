@@ -106,7 +106,7 @@ export class PointInPolygonViz extends VizualizationBase {
         const circles: svgjs.Circle[] = [];
 
         const showWindingNum = new VizStep(0);
-        const addAngleTextAct = new AddTextAction(this.canvas, {x: this.point!.cx(), y: this.point!.cy() + 30}, "0");
+        const addAngleTextAct = new AddTextAction(this.canvas, new Point(this.point!.cx(), this.point!.cy() + 30), "0");
         const angleText = addAngleTextAct.getElement();
         showWindingNum.acts.push(addAngleTextAct);
         for (const point of polygonPoints) {
