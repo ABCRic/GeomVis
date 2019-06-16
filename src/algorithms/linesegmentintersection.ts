@@ -12,21 +12,23 @@ import AVL from "avl";
 import utils, { Segment } from "./linesegmentintersection.utils";
 
 export class LineSegmentIntersectionViz extends VizualizationBase {
+    segs: Map<Segment, svgjs.Line> = new Map();
     private lines!: svgjs.Line[];
 
     public getPseudocode(): PseudocodeLine[] {
         return [
-            {code: "queue = all endpoints", stepText: ""},
-            {code: "tree = []", stepText: ""},
-            {code: "output = []", stepText: ""},
-            {code: "for e in queue:", stepText: ""},
-            {code: "  U = lines with left point e", stepText: ""},
-            {code: "  L = lines with right point e", stepText: "look in tree for adjacent"},
-            {code: "  C = lines that contain e", stepText: "look in tree for adjacent"},
-            {code: "  if union(U, L, C).count > 1:", stepText: ""},
-            {code: "    output.add(e)", stepText: ""},
-            {code: "  delete L and C from tree", stepText: ""},
-            {code: "  insert U and C into tree", stepText: ""},
+            {code: "queue = all endpoints", stepText: "We use a <b>priority queue</b> to store point \"events\". These events are either endpoints of lines or possible intersection points. The priority queue is ordered by the X coordinate of the point in the event.<br>"
+                                                    + "We initialize the queue with the endpoints of the input lines."},
+            {code: "tree = new binarytree()", stepText: "We initialize a balanced binary search tree to store the <b>status</b> of the algorithm. The status is the list of segments intersecting the sweepline, ordered by the y coordinate of the intersection point."},
+            {code: "output = []", stepText: "We initialize an empty list to store the result - the intersection points. We'll add the found intersection points to this list."},
+            {code: "for e in queue:", stepText: "We take the first event in the queue, until the queue is empty."},
+            {code: "  U = lines with left point e <div style='height: 100%; background-color: green'></div>", stepText: "Let U be the set of lines whose left point is e."},
+            {code: "  L = lines in tree with right point e", stepText: "Search in the status tree for all lines whose right point is e."},
+            {code: "  C = lines in tree that contain e", stepText: "Search in the status tree for all lines that contain e."},
+            {code: "  if union(U, L, C).count > 1:", stepText: "Check how many lines we found. If the union of all these sets contains more than one line, we have an intersection."},
+            {code: "    output.add(e)", stepText: "Add the intersection to the result."},
+            {code: "  delete union(L, C) from tree", stepText: "Remove the lines that end at e from the tree (L), as they no longer cross the sweepline.<br>We also remove the lines that contain the point (C), as if they cross they are no longer in the same order. We will reinsert those in the next step."},
+            {code: "  insert union(U, C) into tree", stepText: "Readd the lines that contain the point (C) into the tree so they are reordered. Add any lines that start at this point, as they are now crossing the sweepline."},
             {code: "  if union(U, C).empty:", stepText: ""},
             {code: "    s_L = left neighbor of e in tree", stepText: ""},
             {code: "    s_R = right neighbor of e in tree", stepText: ""},
@@ -180,7 +182,8 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
     public computeSteps(): VizStep[] {
         const steps: VizStep[] = [];
 
-        const sweepline = new Sweepline("before");
+        const addSweepLineAct = new AddElementAction(this.canvas, this.canvas.line(-50, -50000, -50, 50000).stroke({color: "red", width: 2}));
+        const sweepline = new Sweepline("before", addSweepLineAct.getElement());
 
         // init
         const queueInitStep = new VizStep(0);
@@ -198,13 +201,15 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
 
             queue.insert(begin, begin);
             begin = queue.find(begin).key!;
-            begin.segments.push([linePoint1(line).toArray(), linePoint2(line).toArray()]);
+            const seg: Segment = [linePoint1(line).toArray(), linePoint2(line).toArray()];
+            this.segs.set(seg, line);
+            begin.segments.push(seg);
 
             queue.insert(end, end);
         });
         steps.push(queueInitStep);
 
-        steps.push(new VizStep(1));
+        steps.push(new VizStep(1, [addSweepLineAct]));
         const status = new AVL<Segment, Segment>(utils.compareSegments.bind(sweepline), true);
         steps.push(new VizStep(2));
         const output = new AVL<SweepEvent, SweepEvent>(utils.comparePoints, true);
@@ -216,7 +221,7 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
             steps.push(new VizStep(3, [new TransformElementAction(this.canvas, point.key!.element,
                 el => el.fill("orange"),
                 el => el.fill("black"))]));
-            this.handleEventPoint(point.key!, status, output, queue, sweepline);
+            steps.push(...this.handleEventPoint(point.key!, status, output, queue, sweepline));
         }
 
         steps.push(new VizStep(0, output.values().map(p => new AddElementAction(this.canvas, this.canvas.circle(5).cx(p.x).cy(p.y)))));
@@ -225,12 +230,25 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
     }
 
     private handleEventPoint(point: SweepEvent, status: AVL<Segment, Segment>, output: AVL<SweepEvent, SweepEvent>, queue: AVL<SweepEvent, SweepEvent>, sweepline: Sweepline) {
+        const steps: VizStep[] = [];
+
         sweepline.setPosition("before");
         sweepline.setX(point.x);
+        let oldPos: svgjs.PointArrayAlias;
+        steps.push(new VizStep(3, [new TransformElementAction(this.canvas, sweepline.element, el => {
+            oldPos = el.array();
+            el.animate(500, "<>").plot(point.x, linePoint1(el).y, point.x, linePoint2(el).y);
+        },
+        el => el.plot(oldPos))]));
 
         const Up = point.segments, // segments, for which this is the left end
             Lp: Segment[] = [],             // segments, for which this is the right end
             Cp: Segment[] = [];             // // segments, for which this is an inner point.
+
+        const highlightU = new VizStep(4, Up.map(seg => new TransformElementAction(this.canvas, this.segs.get(seg)!,
+            l => l.stroke("lime"),
+            l => l.stroke("black"))));
+        steps.push(highlightU);
 
         // step 2
         status.forEach(function(node) {
@@ -252,27 +270,68 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
             }
         });
 
+        const highlightL = new VizStep(5, Lp.map(seg => new TransformElementAction(this.canvas, this.segs.get(seg)!,
+            l => l.stroke("yellow"),
+            l => l.stroke("black"))));
+        steps.push(highlightL);
+
+        const highlightC = new VizStep(6, Cp.map(seg => new TransformElementAction(this.canvas, this.segs.get(seg)!,
+            l => l.stroke("red"),
+            l => l.stroke("black"))));
+        steps.push(highlightC);
+
+        steps.push(new VizStep(7)); // show branch
         if (Up.concat(Lp, Cp).length > 1) {
+            steps.push(new VizStep(8, [new AddElementAction(this.canvas, this.canvas.circle(10).cx(point.x).cy(point.y).fill("red"))])); // highlight collision point
             output.insert(point, point);
         }
 
+        const deleteLines = new VizStep(9);
         for (const p of Cp) {
+            let prevDashArray: any;
+            deleteLines.acts.push(new TransformElementAction(this.canvas, this.segs.get(p)!,
+                l => {
+                    prevDashArray = l.attr("stroke-dasharray");
+                    l.attr("stroke-dasharray", "");
+                },
+                l => l.attr("stroke-dasharray", prevDashArray)));
+
             status.remove(p);
         }
+        steps.push(deleteLines);
 
         sweepline.setPosition("after");
 
+        const addLines = new VizStep(10);
         for (const p of Up) {
             if (!status.contains(p)) {
+                let prevDashArray: any;
+                addLines.acts.push(new TransformElementAction(this.canvas, this.segs.get(p)!,
+                    l => {
+                        prevDashArray = l.attr("stroke-dasharray");
+                        l.attr("stroke-dasharray", "4");
+                    },
+                    l => l.attr("stroke-dasharray", prevDashArray)));
+
                 status.insert(p);
             }
         }
         for (const p of Cp) {
             if (!status.contains(p)) {
+                let prevDashArray: any;
+                addLines.acts.push(new TransformElementAction(this.canvas, this.segs.get(p)!,
+                    l => {
+                        prevDashArray = l.attr("stroke-dasharray");
+                        l.attr("stroke-dasharray", "4");
+                    },
+                    l => l.attr("stroke-dasharray", prevDashArray)));
+
                 status.insert(p);
             }
         }
+        steps.push(addLines);
 
+        steps.push(new VizStep(11));
         if (Up.length === 0 && Cp.length === 0) {
             for (const s of Lp) {
                 const sNode = status.find(s),
@@ -280,12 +339,13 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
                     sr = status.next(sNode);
 
                 if (sl && sr) {
-                    findNewEvent(sl.key!, sr.key!, output, queue);
+                    this.findNewEvent(sl.key!, sr.key!, output, queue);
                 }
 
                 status.remove(s);
             }
         } else {
+            steps.push(new VizStep(15));
             const UCp = Up.concat(Cp).sort(utils.compareSegments),
                 UCpmin = UCp[0],
                 sllNode = status.find(UCpmin),
@@ -295,33 +355,34 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
                 srr = srrNode && status.next(srrNode);
 
             if (sll && UCpmin) {
-                findNewEvent(sll.key!, UCpmin, output, queue);
+                this.findNewEvent(sll.key!, UCpmin, output, queue);
             }
 
             if (srr && UCpmax) {
-                findNewEvent(srr.key!, UCpmax, output, queue);
+                this.findNewEvent(srr.key!, UCpmax, output, queue);
             }
 
             for (const p of Lp) {
                 status.remove(p);
             }
         }
-        return output;
+
+        return steps;
     }
-}
 
-function findNewEvent(sl: Segment, sr: Segment, output: AVL<SweepEvent, SweepEvent>, queue: AVL<SweepEvent, SweepEvent>) {
-    const intersectionCoords = utils.findSegmentsIntersection(sl, sr);
-    let intersectionPoint: SweepEvent;
+    private findNewEvent(sl: Segment, sr: Segment, output: AVL<SweepEvent, SweepEvent>, queue: AVL<SweepEvent, SweepEvent>) {
+        const intersectionCoords = utils.findSegmentsIntersection(sl, sr);
+        let intersectionPoint: SweepEvent;
 
-    if (intersectionCoords) {
-        intersectionPoint = new SweepEvent(intersectionCoords, "intersection");
+        if (intersectionCoords) {
+            intersectionPoint = new SweepEvent(intersectionCoords, "intersection", this.canvas.circle(5).cx(intersectionCoords[0]).cy(intersectionCoords[1]).fill("black"));
 
-        if (!output.contains(intersectionPoint)) {
-            queue.insert(intersectionPoint, intersectionPoint);
+            if (!output.contains(intersectionPoint)) {
+                queue.insert(intersectionPoint, intersectionPoint);
+            }
+
+            output.insert(intersectionPoint, intersectionPoint);
         }
-
-        output.insert(intersectionPoint, intersectionPoint);
     }
 }
 
@@ -343,10 +404,12 @@ class SweepEvent {
 class Sweepline {
     public x: number | null;
     public position: string;
+    public element: svgjs.Line;
 
-    constructor(position: string) {
+    constructor(position: string, element: svgjs.Line) {
         this.x = null;
         this.position = position;
+        this.element = element;
     }
 
     public setPosition(position: string) {
