@@ -407,5 +407,11 @@ The Cohen-Sutherland algorithm was developed in 1967 by Danny Cohen and Ivan Sut
     ]);
     addAlgorithm("Sutherland-Hodgman",
 `The Sutherland-Hodgman algorithm clips input polygons so that they fit inside a given clip polygon. Polygon clipping is used in computer graphics, for example, to discard unused portions of polygons to save rendering work.
-The algorithm extends each edge of the clip polygon and then clips the input polygons against it; this process is then repeated for each edge. The end product is a copy of the original input polygon clipped against the clip polygon.`, SutherlandHodgmanViz, []);
+The algorithm extends each edge of the clip polygon and then clips the input polygons against it; this process is then repeated for each edge. The end product is a copy of the original input polygon clipped against the clip polygon.`, SutherlandHodgmanViz, [
+    {
+        imagePath: "inputs/sutherlandhodgman/example1.png",
+        inputPath: "inputs/sutherlandhodgman/example1.svg",
+        name: "Example 1"
+    }
+]);
 }

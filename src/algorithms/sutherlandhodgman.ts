@@ -218,7 +218,27 @@ export class SutherlandHodgmanViz extends VizualizationBase {
     }
 
     public loadFromString(contents: string): void {
-        // TODO
+        const doc = new DOMParser().parseFromString(contents, "image/svg+xml");
+        const docRect = doc.getElementsByTagName("rect")[0];
+        const docPolygon = doc.getElementsByTagName("polygon")[0] || null;
+        const docPath = doc.getElementsByTagName("path")[0];
+
+        // adapt our rect to first rect in document
+        const adoptedRect = SVG.adopt(docRect);
+        this.rect.attr("x", adoptedRect.x());
+        this.rect.attr("y", adoptedRect.y());
+        this.rect.attr("width", adoptedRect.width());
+        this.rect.attr("height", adoptedRect.height());
+
+        // adapt our polygon to first polygon in document, or path if no polygons (inkscape saves paths only)
+        const adoptedPolygon = docPolygon
+            ? SVG.adopt(docPolygon) as svgjs.Polygon
+            : (SVG.adopt(docPath) as svgjs.Path).toPoly();
+        if (!this.polygon)
+            this.polygon = this.canvas.polygon([]).draw().attr("stroke-width", 1).attr("fill", "none");
+        this.polygon.plot(adoptedPolygon.array());
+
+        this.updateGuidelines();
     }
 
     public onEnableEditing() {
