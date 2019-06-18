@@ -305,6 +305,7 @@ function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase
         pseudoCodePanel.appendChild(p);
     });
     updatePseudoCodeHighlight(null);
+    pause();
 }
 
 function updateSVGViewbox() {
