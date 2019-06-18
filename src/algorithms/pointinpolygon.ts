@@ -80,7 +80,24 @@ export class PointInPolygonViz extends VizualizationBase {
     }
 
     public loadFromString(contents: string): void {
-        // TODO
+        const doc = new DOMParser().parseFromString(contents, "image/svg+xml");
+        const docCircle = doc.getElementsByTagName("circle")[0];
+        const docPolygon = doc.getElementsByTagName("polygon")[0] || null;
+        const docPath = doc.getElementsByTagName("path")[0];
+
+        // adapt to point from document
+        const adoptedCircle = SVG.adopt(docCircle);
+        if (this.point)
+            this.point.remove();
+        this.point = this.canvas.circle(8).center(adoptedCircle.cx(), adoptedCircle.cy());
+
+        // adapt our polygon to first polygon in document, or path if no polygons (inkscape saves paths only)
+        const adoptedPolygon = docPolygon
+            ? SVG.adopt(docPolygon) as svgjs.Polygon
+            : (SVG.adopt(docPath) as svgjs.Path).toPoly();
+        if (!this.polygon)
+            this.polygon = this.canvas.polygon([]).attr("stroke-width", 1).attr("fill", "none");
+        this.polygon.plot(adoptedPolygon.array());
     }
 
     public onEnableEditing() {

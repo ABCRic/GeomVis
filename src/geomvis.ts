@@ -378,7 +378,23 @@ The simple aproach is to test every line, which takes O(n²) time, where n is th
     addAlgorithm("Point in Polygon",
 `A Point in Polygon algorithm takes a polygon and a point and determines if the point is inside the polygon.
 There are several ways to this - the algorithm shown here uses the winding number of the point with respect to the polygon, which corresponds to the total number of times the outline of the polygon travels counterclockwise around the point. If the number is zero, the point must be outside, otherwise it must be inside.
-This algorithm is used in technologies such as SVG, which powers this visualization.`, PointInPolygonViz, []);
+This algorithm is used in technologies such as SVG, which powers this visualization.`, PointInPolygonViz, [
+    {
+        imagePath: "inputs/pointinpolygon/example1.png",
+        inputPath: "inputs/pointinpolygon/example1.svg",
+        name: "Example 1"
+    },
+    {
+        imagePath: "inputs/pointinpolygon/example2.png",
+        inputPath: "inputs/pointinpolygon/example2.svg",
+        name: "Example 2"
+    },
+    {
+        imagePath: "inputs/pointinpolygon/example3.png",
+        inputPath: "inputs/pointinpolygon/example3.svg",
+        name: "Example 3"
+    },
+]);
     addAlgorithm("Cohen-Sutherland",
 `Line clipping is the process of removing lines or portions of lines outside an area.
 The Cohen-Sutherland algorithm was developed in 1967 by Danny Cohen and Ivan Sutherland. It clips lines into a rectangle by dividing a two-dimensional space into 9 regions and then determining which lines and portions of lines are visible in the central region.`, CohenSutherlandViz, [
