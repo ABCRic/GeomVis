@@ -161,7 +161,41 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
     }
 
     public loadFromString(contents: string): void {
-        // TODO
+        const doc = new DOMParser().parseFromString(contents, "image/svg+xml");
+        const docLines = doc.getElementsByTagName("line");
+        const docPaths = doc.getElementsByTagName("path");
+
+        // clear current lines
+        this.lines.forEach(line => {
+            line.remove();
+        });
+        this.lines.length = 0;
+
+        // fetch lines from document
+        for (const line of docLines) {
+            const adoptedLine = SVG.adopt(line) as SVG.Line;
+            const points = adoptedLine.array().toLine();
+            const newLine = this.canvas.line(points.x1, points.y1, points.x2, points.y2).stroke("#000000");
+            this.canvas.add(newLine);
+            this.lines.push(newLine);
+        }
+
+        // fetch paths from document and convert them into lines
+        for (const path of docPaths) {
+            const adoptedPath = SVG.adopt(path) as SVG.Path;
+            const polyline = adoptedPath.toPoly();
+
+            const points = polyline.array().value as unknown as number[][];
+            for (let i = 0; i < points.length - 1; i++) {
+                const line = this.canvas.line(
+                    points[i][0],
+                    points[i][1],
+                    points[i + 1][0],
+                    points[i + 1][1]
+                ).stroke("#000000");
+                this.lines.push(line);
+            }
+        }
     }
 
     public onEnableEditing() {
