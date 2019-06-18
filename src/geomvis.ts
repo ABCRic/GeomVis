@@ -436,6 +436,21 @@ The algorithm extends each edge of the clip polygon and then clips the input pol
         imagePath: "inputs/sutherlandhodgman/example1.png",
         inputPath: "inputs/sutherlandhodgman/example1.svg",
         name: "Example 1"
-    }
+    },
+    {
+        imagePath: "inputs/sutherlandhodgman/example2.png",
+        inputPath: "inputs/sutherlandhodgman/example2.svg",
+        name: "Example 2"
+    },
+    {
+        imagePath: "inputs/sutherlandhodgman/example3.png",
+        inputPath: "inputs/sutherlandhodgman/example3.svg",
+        name: "Example 3"
+    },
+    {
+        imagePath: "inputs/sutherlandhodgman/example4.png",
+        inputPath: "inputs/sutherlandhodgman/example4.svg",
+        name: "Example 4"
+    },
 ]);
 }
