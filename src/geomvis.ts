@@ -280,6 +280,7 @@ function resetViz() {
 }
 
 function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase) {
+    if (vizType === vizClass) return; // do nothing if same viz
     resetViz();
 
     theSVG.remove();
