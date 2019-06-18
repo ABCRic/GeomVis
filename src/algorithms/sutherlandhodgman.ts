@@ -235,7 +235,7 @@ export class SutherlandHodgmanViz extends VizualizationBase {
             ? SVG.adopt(docPolygon) as svgjs.Polygon
             : (SVG.adopt(docPath) as svgjs.Path).toPoly();
         if (!this.polygon)
-            this.polygon = this.canvas.polygon([]).draw().attr("stroke-width", 1).attr("fill", "none");
+            this.polygon = this.canvas.polygon([]).attr("stroke-width", 1).attr("fill", "none");
         this.polygon.plot(adoptedPolygon.array());
 
         this.updateGuidelines();
