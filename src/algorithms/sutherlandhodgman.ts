@@ -29,10 +29,10 @@ export class SutherlandHodgmanViz extends VizualizationBase {
             {code: "  for each P_start, P_end in inlist:", stepText: "We start iterating through the edges in the input. Each edge runs from P_start to P_end."},
             {code: "    if P_end is inside:", stepText: "Is the end point on the inside relative to the clip edge?"},
             {code: "      if P_start is outside:", stepText: "The end point is inside. Is the start point outside?"},
-            {code: "        outlist.add(intersection(P_start,P_end,clipEdge))", stepText: "The end point is inside, but the start point is outside. Therefore we clip the edge at the intersection with the clipping edge and the resulting edge runs from the intersection to P_end. So we insert the intersection point in the output."},
+            {code: "        outlist.add(\n          intersection(P_start,P_end,clipEdge))", stepText: "The end point is inside, but the start point is outside. Therefore we clip the edge at the intersection with the clipping edge and the resulting edge runs from the intersection to P_end. So we insert the intersection point in the output."},
             {code: "      outlist.add(P_end)", stepText: "Whether the start point is inside or not, as the point is inside we insert it in the output."},
             {code: "    else if P_start is inside:", stepText: "Is the start point on the inside relative to the clip edge?"},
-            {code: "      outlist.add(intersection(P_start,P_end,clipEdge))", stepText: "The start point is inside, but the end point is not. So we clip the edge at the intersection with the clipping edge. The resulting edge runs from the start to the intersection point. Note that the start point was already added in a previous step."},
+            {code: "      outlist.add(\n        intersection(P_start,P_end,clipEdge))", stepText: "The start point is inside, but the end point is not. So we clip the edge at the intersection with the clipping edge. The resulting edge runs from the start to the intersection point. Note that the start point was already added in a previous step."},
         ];
     }
 
