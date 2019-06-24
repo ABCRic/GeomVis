@@ -28,6 +28,7 @@ const redoStack: InputAction[] = [];
 
 let steps: VizStep[] = [];
 let currentVizStep = -1;
+let computed = false;
 
 let viz: VizualizationBase;
 let vizType: new (canvas: SVG.Doc) => VizualizationBase;
@@ -73,6 +74,7 @@ export function pushToUndoHistory(act: InputAction) {
 ////////////////
 
 export function forward() {
+    if (!computed) computeSteps();
     const oldStep = currentStep;
 
     // step out of current step
@@ -103,6 +105,7 @@ export function back() {
 }
 
 export function playPause() {
+    if (!computed) computeSteps();
     if (isPlaying) pause();
     else play();
 }
@@ -189,13 +192,10 @@ function getFile(path: string, callback: (responseText: string) => void) {
     client.send();
 }
 
-export function computeSteps() {
+function computeSteps() {
     viz.setAllowEditing(false);
     steps = viz.computeSteps();
-    (document.getElementById("backbutton") as HTMLButtonElement).disabled = false;
-    (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = false;
-    (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = false;
-    (document.getElementById("executebutton") as HTMLButtonElement).disabled = true;
+    computed = true;
 }
 
 let discardModalConfirmAction: ((() => void) | null) = null;
@@ -263,15 +263,15 @@ function addAlgorithm(name: string, description: string, vizClass: new (canvas: 
 }
 
 function resetViz() {
+    computed = false;
     steps = [];
     currentVizStep = -1;
     currentStep = null;
     undoStack.length = 0;
     redoStack.length = 0;
     (document.getElementById("backbutton") as HTMLButtonElement).disabled = true;
-    (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = true;
-    (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = true;
-    (document.getElementById("executebutton") as HTMLButtonElement).disabled = false;
+    (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = false;
+    (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = false;
     document.getElementById("topcontainer")!.style.display = "block";
     $("#topcontainer").animate({
         top: "10px"
