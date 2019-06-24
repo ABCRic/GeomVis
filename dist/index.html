@@ -8,9 +8,12 @@
 
         <script src="geomvis.js" charset="utf-8"></script>
         <style>
-            #vizcontainer {
+            .vizcontainer {
                 background: white;
                 background-size: 40px 40px;
+            }
+
+            .vizcontainer-editing {
                 background-image: linear-gradient(to right, lightgray 1px, transparent 1px), linear-gradient(to bottom, lightgray 1px, transparent 1px);
             }
 
@@ -148,7 +151,7 @@
                 </div>
                 <div id="hinttext" style="-moz-user-select: none; -webkit-user-select: none; user-select: none; white-space: pre">Select an algorithm on the left</div>
             </div>
-            <div id="vizcontainer" class="container-fluid h-100" style="color: initial; padding: 0"></div>
+            <div id="vizcontainer" class="container-fluid h-100 vizcontainer vizcontainer-editing" style="color: initial; padding: 0"></div>
             <div id="bottompane" class="col-12 position-absolute white-border" style="width: 875px; bottom: 10px; background: #c0dab4">
                 <div class="row p-1 white-border">
                     <div class="col-4 btn-group">

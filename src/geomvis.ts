@@ -87,6 +87,7 @@ export function forward() {
     newVizStep.stepFromPrevious();
     currentStep = newVizStep.codeLine;
     updatePseudoCodeHighlight(oldStep);
+    updateStepButtons();
 }
 
 export function back() {
@@ -102,6 +103,7 @@ export function back() {
     newStep.stepFromNext();
     currentStep = newStep.codeLine;
     updatePseudoCodeHighlight(oldStep);
+    updateStepButtons();
 }
 
 export function playPause() {
@@ -115,6 +117,12 @@ function play() {
     isPlaying = true;
     const id = setInterval(iter, 800);
     function iter() {
+        // check if we're done
+        if (currentVizStep >= steps.length) {
+            pause();
+            return;
+        }
+
         if (isPlaying) {
             forward();
         } else {
@@ -127,6 +135,20 @@ function play() {
 function pause() {
     isPlaying = false;
     document.getElementById("playpausebutton")!.innerHTML = "<i class=\"fas fa-play\"></i> Play";
+}
+
+function updateStepButtons() {
+    const backButton = (document.getElementById("backbutton") as HTMLButtonElement);
+    const forwardButton = (document.getElementById("forwardbutton") as HTMLButtonElement);
+
+    backButton.disabled = false;
+    forwardButton.disabled = false;
+
+    if (currentVizStep === 0) {
+        backButton.disabled = true;
+    } else if (currentVizStep === steps.length - 1) {
+        forwardButton.disabled = true;
+    }
 }
 
 function updatePseudoCodeHighlight(oldStep: number | null) {
@@ -194,6 +216,7 @@ function getFile(path: string, callback: (responseText: string) => void) {
 
 function computeSteps() {
     viz.setAllowEditing(false);
+    document.getElementById("vizcontainer")!.classList.remove("vizcontainer-editing");
     steps = viz.computeSteps();
     computed = true;
 }
@@ -272,6 +295,7 @@ function resetViz() {
     (document.getElementById("backbutton") as HTMLButtonElement).disabled = true;
     (document.getElementById("playpausebutton") as HTMLButtonElement).disabled = false;
     (document.getElementById("forwardbutton") as HTMLButtonElement).disabled = false;
+    document.getElementById("vizcontainer")!.classList.add("vizcontainer-editing");
     document.getElementById("topcontainer")!.style.display = "block";
     $("#topcontainer").animate({
         top: "10px"
