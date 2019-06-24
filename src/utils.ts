@@ -27,7 +27,7 @@ export function getSVGCoordinatesForMouseEvent(canvas: SVG.Doc, event: MouseEven
     return pt.matrixTransform((canvas.node as any).getScreenCTM().inverse());
 }
 
-export function classOf<T>(o: T): any {
+export function classOf<T extends object>(o: T): any {
     return o.constructor;
 }
 
@@ -62,20 +62,21 @@ export function intersectionPoint(l1: Line, l2: Line): Point | null {
         l2.p1.x, l2.p1.y,
         l2.p2.x, l2.p2.y
     );
-    if (result.type === "intersecting")
-        return result.point;
+    if (result.type === "intersecting") {
+        return new Point(result.point.x, result.point.y);
+    }
     return null;
 }
 
 export function scaleLine(l: Line, factor: number): Line {
-    const newP2 = {
-        x: l.p2.x + (l.p2.x - l.p1.x) * factor,
-        y: l.p2.y + (l.p2.y - l.p1.y) * factor
-    };
-    const newP1 = {
-        x: l.p1.x - (l.p2.x - l.p1.x) * factor,
-        y: l.p1.y - (l.p2.y - l.p1.y) * factor
-    };
+    const newP2 = new Point(
+        l.p2.x + (l.p2.x - l.p1.x) * factor,
+        l.p2.y + (l.p2.y - l.p1.y) * factor
+    );
+    const newP1 = new Point(
+        l.p1.x - (l.p2.x - l.p1.x) * factor,
+        l.p1.y - (l.p2.y - l.p1.y) * factor
+    );
     return new Line(newP1, newP2);
 }
 
