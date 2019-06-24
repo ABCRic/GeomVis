@@ -30,7 +30,7 @@ export class ConvexHullViz extends VizualizationBase {
             {code: "stack = empty_stack()", stepText: "We create an empty stack to hold the points. We'll use the stack during computation, and at the end of the algorithm the stack will contain the points of the hull."},
             {code: "find the lowest point -> P0", stepText: "To start with, we find the lowest point, that is, the one with the lowest Y value (Y axis pointing up). If there are multiple with the same Y value, we pick the leftmost one. We'll call this point P0."},
             {code: "sort the points by angle with P0", stepText: "Then we find the angle from P0 to each of the other points and sort them by that angle."},
-            {code: "add P0 and next point to stack", stepText: "We add P0 and the next point to the stack to bootstrap the algorithm."},
+            {code: "add P0 and P1 to stack", stepText: "We add P0 and the next point to the stack to bootstrap the algorithm."},
             {code: "for each point:", stepText: "We go through each point of the sorted list, in order. For each one we take the next steps."},
             {code: "  while stack.count() > 1 and\n      clockwise(stack.belowTop(),\n                stack.top(),\n                point):", stepText: "While the stack has at least two points, we want to check if the current point and the two before form a clockwise turn (a \"right turn\")."},
             {code: "    stack.pop()", stepText: "We found a \"right turn\" - a clockwise turn. This means that if we keep the last point, the hull turns inside and back out, which means it is not convex. So we remove that point from the stack."},
