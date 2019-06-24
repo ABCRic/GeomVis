@@ -20,8 +20,10 @@ export abstract class VizualizationBase {
 
     public setAllowEditing(allowEditing: boolean): void {
         if (allowEditing && !this.editingAllowed) {
+            this.editingAllowed = true;
             this.onEnableEditing();
         } else if (!allowEditing && this.editingAllowed) {
+            this.editingAllowed = false;
             this.onDisableEditing();
         }
     }
