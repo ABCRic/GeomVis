@@ -115,7 +115,7 @@ export function playPause() {
 let isPlaying = false;
 function play() {
     isPlaying = true;
-    const id = setInterval(iter, 800);
+    const id = setInterval(iter, 3000);
     function iter() {
         // check if we're done
         if (currentVizStep >= steps.length) {
