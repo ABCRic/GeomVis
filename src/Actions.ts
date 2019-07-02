@@ -51,6 +51,26 @@ export class TransformElementAction<T extends svgjs.Element> extends EntryOnlyVi
 }
 
 /**
+ * Boilerplate reduction for EntryOnlyVizActions with actions specified via the constructor.
+ */
+export class LambdaEntryOnlyVizAction extends EntryOnlyVizAction {
+    constructor(
+        canvas: svgjs.Doc,
+        private fromPreviousCallback: () => void,
+        private toPreviousCallback: () => void) {
+        super(canvas);
+    }
+
+    public stepFromPrevious(): void {
+        this.fromPreviousCallback();
+    }
+
+    public stepToPrevious(): void {
+        this.toPreviousCallback();
+    }
+}
+
+/**
  * Represents an action that adds a given element on entry to a step and removes it on exit.
  * The element is immediately added to the canvas and hidden from view. This simplifies lifetime management.
  * The element can be obtained using getElement().

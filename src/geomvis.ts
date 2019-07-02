@@ -311,6 +311,7 @@ function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase
     resetViz();
 
     theSVG.remove();
+    document.getElementById("vizcontainer")!.innerHTML = ""; // clear viz area (for visualizers that add HTML elements)
     createSVG();
     viz = new vizClass(theSVG);
     vizType = vizClass;

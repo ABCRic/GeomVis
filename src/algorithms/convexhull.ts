@@ -9,6 +9,7 @@ import { InputAction } from "../InputAction";
 import { getSVGCoordinatesForMouseEvent } from "../utils";
 import { EntryOnlyVizAction } from "../EntryOnlyVizAction";
 import { Point } from "../geometrytypes";
+import { LambdaEntryOnlyVizAction } from "../Actions";
 
 const CIRCLE_SIZE = 10;
 
@@ -32,7 +33,7 @@ export class ConvexHullViz extends VizualizationBase {
             {code: "sort the points by angle with P0", stepText: "Then we find the angle from P0 to each of the other points and sort them by that angle."},
             {code: "add P0 and P1 to stack", stepText: "We add P0 and the next point to the stack to bootstrap the algorithm."},
             {code: "for each point:", stepText: "We go through each point of the sorted list, in order. For each one we take the next steps."},
-            {code: "  while stack.count() > 1 and\n      clockwise(stack.belowTop(),\n                stack.top(),\n                point):", stepText: "While the stack has at least two points, we want to check if the current point and the two before form a clockwise turn (a \"right turn\")."},
+            {code: "  while stack.count() > 1 and right_turn():", stepText: "While the stack has at least two points, we want to check if the current point and the two before form a clockwise turn (a \"right turn\")."},
             {code: "    stack.pop()", stepText: "We found a \"right turn\" - a clockwise turn. This means that if we keep the last point, the hull turns inside and back out, which means it is not convex. So we remove that point from the stack."},
             {code: "  stack.push(point)", stepText: "When we're done eliminating clockwise turns, we add the current point to the stack. Then we go on to the next point."},
             {code: "done", stepText: "The algorithm is finished and the stack contains the points forming the convex hull in counterclockwise order."},
@@ -153,7 +154,7 @@ export class ConvexHullViz extends VizualizationBase {
         // select P0
         steps.push(new VizStep(1, [new NumberPointAction(this.canvas, p0, 0)]));
 
-        // order points by angle
+        // order points other than p0 by angle
         const pointsCopy = this.points.splice(0);
         pointsCopy.splice(pointsCopy.indexOf(p0), 1); // remove p0
         const sortedPoints = pointsCopy.sort(
@@ -176,10 +177,27 @@ export class ConvexHullViz extends VizualizationBase {
             sortedPoints[0]
         ];
 
-        // add initial points
+        // add initial points and setup stack
+        const stackText = document.createElement("div");
+        stackText.style.position = "absolute";
+        stackText.style.bottom = "300px";
+        stackText.style.left = "10px";
+        stackText.style.whiteSpace = "pre";
+        stackText.style.textAlign = "center";
+        stackText.textContent = "Stack";
+        stackText.classList.add("border", "p-1");
+        this.canvas.parent().appendChild(stackText);
+
+        let oldText: string;
+        const currentStack = stack.slice(0);
+        currentStack.reverse();
         steps.push(new VizStep(3, [
             new ColorPointAction(this.canvas, p0, "white", "orange", "black", "white"),
-            new ColorPointAction(this.canvas, sortedPoints[0], "white", "orange", "black", "white")]));
+            new ColorPointAction(this.canvas, sortedPoints[0], "white", "orange", "black", "white"),
+            new LambdaEntryOnlyVizAction(this.canvas, () => {
+                oldText = stackText.textContent!;
+                stackText.textContent = currentStack.map(p => sortedPoints.indexOf(p) + 1).join("\n") + "\nStack";
+            }, () => stackText.textContent = oldText)]));
         // main loop
         for (const point of sortedPoints.slice(1)) {
             // highlight point under iteration
@@ -211,19 +229,38 @@ export class ConvexHullViz extends VizualizationBase {
                     eraseLine.acts.push(new AddLineAction(this.canvas, edges, stack[stack.length - 1], point).getReverse());
                     haveEdges.splice(haveEdges.indexOf(point));
                     eraseLine.acts.push(new ColorPointAction(this.canvas, stack[stack.length - 1], "orange", "white", "white", "black"));
-                    steps.push(eraseLine);
+
                     stack.pop();
+
+                    let oldText: string;
+                    const currentStack = stack.slice(0);
+                    currentStack.reverse();
+                    eraseLine.acts.push(new LambdaEntryOnlyVizAction(this.canvas, () => {
+                        oldText = stackText.textContent!;
+                        stackText.textContent = currentStack.map(p => sortedPoints.indexOf(p) + 1).join("\n") + "\nStack";
+                    }, () => stackText.textContent = oldText));
+                    steps.push(eraseLine);
                 } else {
                     break;
                 }
             }
-            if (stack.length > 0) {
-                // add line to new point
-                steps.push(new VizStep(7, [new AddLineAction(this.canvas, edges, stack[stack.length - 1], point)]));
-                haveEdges.push(point);
-            }
 
             stack.push(point);
+
+            if (stack.length > 0) {
+                // add line to new point and update stack
+
+                let oldText: string;
+                const currentStack = stack.slice(0);
+                currentStack.reverse();
+                steps.push(new VizStep(7, [
+                    new AddLineAction(this.canvas, edges, stack[stack.length - 1], point),
+                    new LambdaEntryOnlyVizAction(this.canvas, () => {
+                        oldText = stackText.textContent!;
+                        stackText.textContent = currentStack.map(p => sortedPoints.indexOf(p) + 1).join("\n") + "\nStack";
+                    }, () => stackText.textContent = oldText)]));
+                haveEdges.push(point);
+            }
         }
 
         // add last line
