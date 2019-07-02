@@ -29,6 +29,7 @@ const redoStack: InputAction[] = [];
 let steps: VizStep[] = [];
 let currentVizStep = -1;
 let computed = false;
+let playSpeed = 4000;
 
 let viz: VizualizationBase;
 let vizType: new (canvas: SVG.Doc) => VizualizationBase;
@@ -115,7 +116,7 @@ export function playPause() {
 let isPlaying = false;
 function play() {
     isPlaying = true;
-    const id = setInterval(iter, 3000);
+    setTimeout(iter, playSpeed);
     function iter() {
         // check if we're done
         if (currentVizStep >= steps.length) {
@@ -125,8 +126,7 @@ function play() {
 
         if (isPlaying) {
             forward();
-        } else {
-            clearInterval(id);
+            setTimeout(iter, playSpeed);
         }
     }
     document.getElementById("playpausebutton")!.innerHTML = "<i class=\"fas fa-pause\"></i> Pause";
@@ -181,6 +181,10 @@ export function fileSelected() {
             (document.getElementById("pseudocodepanel") as HTMLDivElement).innerText = "Error reading file.";
         };
     }
+}
+
+export function updateSpeed(value: number) {
+    playSpeed = 4000 / (value / 100);
 }
 
 ////////////////
