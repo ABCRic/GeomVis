@@ -29,7 +29,7 @@ const redoStack: InputAction[] = [];
 let steps: VizStep[] = [];
 let currentVizStep = -1;
 let computed = false;
-let playSpeed = 4000;
+let playSpeed = 4500;
 
 let viz: VizualizationBase;
 let vizType: new (canvas: SVG.Doc) => VizualizationBase;
