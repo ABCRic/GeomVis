@@ -170,13 +170,13 @@
                         <input id="speedslider" type="range" min="10" max="1000" value="100" autocomplete="off" oninput="geomvis.updateSpeed(this.value)">
                     </div>
                     <div class="col-4 btn-group text-right">
-                        <button id="backbutton" type="button" class="btn btn-outline-dark bottompanel-button" disabled onclick="geomvis.back()">
+                        <button id="backbutton" type="button" class="btn btn-outline-dark bottompanel-button" disabled onclick="geomvis.uiBack()">
                             <i class="fas fa-angle-left"></i> Back
                         </button>
                         <button id="playpausebutton" type="button" class="btn btn-outline-dark bottompanel-button" disabled onclick="geomvis.playPause()">
                             <i class="fas fa-play"></i> Play
                         </button>
-                        <button id="forwardbutton" type="button" class="btn btn-outline-dark bottompanel-button" disabled onclick="geomvis.forward()">
+                        <button id="forwardbutton" type="button" class="btn btn-outline-dark bottompanel-button" disabled onclick="geomvis.uiNext()">
                             <i class="fas fa-angle-right"></i> Next
                         </button>
                     </div>

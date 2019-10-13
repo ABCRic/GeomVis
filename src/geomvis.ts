@@ -74,8 +74,21 @@ export function pushToUndoHistory(act: InputAction) {
 // animation stepping methods
 ////////////////
 
-export function forward() {
+export function uiNext() {
+    // pause to avoid forward/back and autoplay going on at the same time
+    pause();
+    forward();
+}
+
+export function uiBack() {
+    // pause to avoid forward/back and autoplay going on at the same time
+    pause();
+    back();
+}
+
+function forward() {
     if (!computed) computeSteps();
+
     const oldStep = currentStep;
 
     // step out of current step
@@ -91,7 +104,7 @@ export function forward() {
     updateStepButtons();
 }
 
-export function back() {
+function back() {
     const oldStep = currentStep;
 
     // step back out of current step
@@ -114,9 +127,13 @@ export function playPause() {
 }
 
 let isPlaying = false;
+let playCallbackHandle: number | null = null;
 function play() {
     isPlaying = true;
-    setTimeout(iter, playSpeed);
+
+    // run an iteration immediately
+    iter();
+
     function iter() {
         // check if we're done
         if (currentVizStep >= steps.length) {
@@ -126,13 +143,15 @@ function play() {
 
         if (isPlaying) {
             forward();
-            setTimeout(iter, playSpeed);
+            playCallbackHandle = setTimeout(iter, playSpeed);
         }
     }
     document.getElementById("playpausebutton")!.innerHTML = "<i class=\"fas fa-pause\"></i> Pause";
 }
 
 function pause() {
+    if (playCallbackHandle)
+        clearTimeout(playCallbackHandle);
     isPlaying = false;
     document.getElementById("playpausebutton")!.innerHTML = "<i class=\"fas fa-play\"></i> Play";
 }
