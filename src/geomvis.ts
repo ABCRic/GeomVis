@@ -210,10 +210,10 @@ export function updateSpeed(value: number) {
 // input loading methods
 ////////////////
 function promptLoadExample(path: string) {
-    discardModalConfirmAction = () => {
+    // discardModalConfirmAction = () => {
         loadExample(path);
-    };
-    $("#confirmDiscardModal").modal();
+    // };
+    // $("#confirmDiscardModal").modal();
 }
 
 function loadExample(path: string) {
