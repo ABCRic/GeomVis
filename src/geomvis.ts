@@ -371,6 +371,21 @@ export function onLoad() {
     addAlgorithms();
     // show one
     $("#algoButton1").click();
+    // add hotkeys
+    window.addEventListener("keydown", globalKeyDownHandler);
+}
+
+function globalKeyDownHandler(this: Window, ev: KeyboardEvent) {
+    if (ev.key === "ArrowLeft") { // left arrow to step back
+        back();
+        ev.preventDefault();
+    } else if (ev.key === "ArrowRight") { // right arrow to step forward
+        forward();
+        ev.preventDefault();
+    } else if (ev.key === " ") { // spacebar to play/pause
+        playPause();
+        ev.preventDefault();
+    }
 }
 
 function addAlgorithms() {
