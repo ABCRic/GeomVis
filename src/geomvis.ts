@@ -203,7 +203,7 @@ export function fileSelected() {
 }
 
 export function updateSpeed(value: number) {
-    playSpeed = 4000 / (value / 100);
+    playSpeed = 4500 / (value / 100);
 }
 
 ////////////////
