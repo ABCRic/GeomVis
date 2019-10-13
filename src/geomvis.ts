@@ -281,7 +281,7 @@ function addAlgorithm(name: string, description: string, vizClass: new (canvas: 
     algoCollapse.id = "algoCollapse" + algorithmNum;
     algoCollapse.setAttribute("aria-labelledby", "algoHeader" + algorithmNum);
     const algoText = algoCollapse.querySelector("#algoText") as HTMLDivElement;
-    algoText.textContent = description;
+    algoText.innerHTML = description;
 
     // configure algorithm collapse element
     const examplesContainer = clone.querySelector("#algoExamplesContainer") as HTMLDivElement;
