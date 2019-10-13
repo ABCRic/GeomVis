@@ -327,7 +327,7 @@ function activateVizualizer(vizClass: new (canvas: SVG.Doc) => VizualizationBase
     while (pseudoCodePanel.firstChild) pseudoCodePanel.removeChild(pseudoCodePanel.firstChild);
     viz.getPseudocode().forEach((line, index) => {
         const p = document.createElement("pre");
-        p.textContent = line.code;
+        p.textContent = line.code.length > 0 ? line.code : " "; // force blank line if string empty (empty string makes html element have 0 height)
         p.classList.add("mb-0"); // remove bottom margin
         p.classList.add("pseudocode-line");
         pseudoCodePanel.appendChild(p);
