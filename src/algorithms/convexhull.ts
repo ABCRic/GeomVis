@@ -9,7 +9,7 @@ import { InputAction } from "../InputAction";
 import { getSVGCoordinatesForMouseEvent } from "../utils";
 import { EntryOnlyVizAction } from "../EntryOnlyVizAction";
 import { Point } from "../geometrytypes";
-import { LambdaEntryOnlyVizAction } from "../Actions";
+import { LambdaEntryOnlyVizAction, ActionsWithInterval } from "../Actions";
 
 const CIRCLE_SIZE = 10;
 
@@ -29,9 +29,9 @@ export class ConvexHullViz extends VizualizationBase {
     public getPseudocode(): PseudocodeLine[] {
         return [
             {code: "stack = empty_stack()", stepText: "We create an empty stack to hold the points. We'll use the stack during computation, and at the end of the algorithm the stack will contain the points of the hull."},
-            {code: "find the lowest point -> P0", stepText: "To start with, we find the lowest point, that is, the one with the lowest Y value (Y axis pointing up). If there are multiple with the same Y value, we pick the leftmost one. We'll call this point P0."},
+            {code: "P0 = lowest point", stepText: "To start with, we find the lowest point, that is, the one with the lowest Y value (Y axis pointing up). If there are multiple with the same Y value, we pick the leftmost one. We'll call this point P0."},
             {code: "sort the points by angle with P0", stepText: "Then we find the angle from P0 to each of the other points and sort them by that angle."},
-            {code: "add P0 and P1 to stack", stepText: "We add P0 and the next point to the stack to bootstrap the algorithm."},
+            {code: "push P0 and P1 into stack", stepText: "We add P0 and the next point to the stack to bootstrap the algorithm."},
             {code: "for each point:", stepText: "We go through each point of the sorted list, in order. For each one we take the next steps."},
             {code: "  while stack.count() > 1 and right_turn():", stepText: "While the stack has at least two points, we want to check if the current point and the two before form a clockwise turn (a \"right turn\")."},
             {code: "    stack.pop()", stepText: "We found a \"right turn\" - a clockwise turn. This means that if we keep the last point, the hull turns inside and back out, which means it is not convex. So we remove that point from the stack."},
@@ -164,11 +164,13 @@ export class ConvexHullViz extends VizualizationBase {
                 return cotanA - cotanB < 0 ? 1 : -1;
             });
         // highlight each point
+        const initacts = [];
         for (const [i, point] of sortedPoints.entries()) {
-            steps.push(new VizStep(2, [
+            initacts.push(
                 new NumberPointAction(this.canvas, point, i + 1),
-                new ProjectBeamAction(this.canvas, p0, point)]));
+                new ProjectBeamAction(this.canvas, p0, point));
         }
+        steps.push(new VizStep(2, [new ActionsWithInterval(this.canvas, initacts, 150)]));
 
         const edges = new Map<svgjs.Circle, svgjs.Line>(); // runtime edges
         const haveEdges: svgjs.Circle[] = []; // generation-time edges
@@ -254,7 +256,6 @@ export class ConvexHullViz extends VizualizationBase {
                 const currentStack = stack.slice(0);
                 currentStack.reverse();
                 steps.push(new VizStep(7, [
-                    new AddLineAction(this.canvas, edges, stack[stack.length - 1], point),
                     new LambdaEntryOnlyVizAction(this.canvas, () => {
                         oldText = stackText.textContent!;
                         stackText.textContent = currentStack.map(p => sortedPoints.indexOf(p) + 1).join("\n") + "\nStack";
