@@ -5,7 +5,7 @@ import { PseudocodeLine } from "../PseudocodeLine";
 import { VizStep } from "../VizStep";
 import { svgLineLength, linePoint1, linePoint2 } from "../utils";
 import { LEFT_MOUSE_BUTTON } from "../constants";
-import { AddElementAction, TransformElementAction } from "../Actions";
+import { AddElementAction, TransformElementAction, AddElementOnceAction } from "../Actions";
 import { InputAction } from "../InputAction";
 import { pushToUndoHistory } from "../geomvis";
 import AVL from "avl";
@@ -22,30 +22,28 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
             {code: "tree = new binarytree()", stepText: "We initialize a balanced binary search tree to store the <b>status</b> of the algorithm. The status is the list of segments intersecting the sweepline, ordered by the y coordinate of the intersection point."},
             {code: "output = []", stepText: "We initialize an empty list to store the result - the intersection points. We'll add the found intersection points to this list."},
             {code: "for e in queue:", stepText: "We take the first event in the queue, until the queue is empty."},
-            {code: "  U = lines with left point e <div style='height: 100%; background-color: green'></div>", stepText: "Let U be the set of lines whose left point is e."},
-            {code: "  L = lines in tree with right point e", stepText: "Search in the status tree for all lines whose right point is e."},
+            {code: "  L = lines with left point e <div style='height: 100%; background-color: green'></div>", stepText: "Let L be the set of lines whose <b>L</b>eft point is e."},
+            {code: "  R = lines in tree with right point e", stepText: "Search in the status tree for all lines whose <b>R</b>ight point is e."},
             {code: "  C = lines in tree that contain e", stepText: "Search in the status tree for all lines that contain e."},
-            {code: "  if union(U, L, C).count > 1:", stepText: "Check how many lines we found. If the union of all these sets contains more than one line, we have an intersection."},
+            {code: "  if union(L, R, C).count > 1:", stepText: "Check how many lines we found. If the union of all these sets contains more than one line, we have an intersection."},
             {code: "    output.add(e)", stepText: "Add the intersection to the result."},
-            {code: "  delete union(L, C) from tree", stepText: "Remove the lines that end at e from the tree (L), as they no longer cross the sweepline.<br>We also remove the lines that contain the point (C), as if they cross they are no longer in the same order. We will reinsert those in the next step."},
-            {code: "  insert union(U, C) into tree", stepText: "Readd the lines that contain the point (C) into the tree so they are reordered. Add any lines that start at this point, as they are now crossing the sweepline."},
-            {code: "  if union(U, C).empty:", stepText: ""},
-            {code: "    s_L = left neighbor of e in tree", stepText: ""},
-            {code: "    s_R = right neighbor of e in tree", stepText: ""},
-            {code: "    FindNewEvent(s_L, s_R, e)", stepText: ""},
-            {code: "  else:", stepText: ""},
-            {code: "    s' = leftmost neighbor of union(U, C) in tree", stepText: ""},
-            {code: "    s_L = left neighbor of s' in tree", stepText: ""},
-            {code: "    FindNewEvent(s_L, s', e)", stepText: ""},
-            {code: "    s'' = rightmost neighbor of union(U, C) in tree", stepText: ""},
-            {code: "    s_R = right neighbor of s'' in tree", stepText: ""},
-            {code: "    FindNewEvent(s'', s_R, e)", stepText: ""},
+            {code: "  delete union(R, C) from tree", stepText: "Remove the lines that end at e from the tree (R), as they no longer cross the sweepline.<br>We also remove the lines that contain the point (C), as if they cross they are no longer in the same order. We will reinsert those in the next step."},
+            {code: "  insert union(L, C) into tree", stepText: "Readd the lines that contain the point (C) into the tree so they are reordered. Add any lines that start at this point, as they are now crossing the sweepline."},
+            {code: "  if union(L, C).empty:", stepText: "Now search for new possible collisions involving lines currently under the sweepline. Check if there are no lines that continue onwards from the current position... <b>Note that we ignore any neighbors below if they do not exist and skip the relevant code.</b>"},
+            {code: "    s_L = left neighbor of e in tree", stepText: "Get the left neighbor of the current point under the sweepline."},
+            {code: "    s_R = right neighbor of e in tree", stepText: "Get the right neighbor of the current point under the sweepline."},
+            {code: "    FindNewEvent(s_L, s_R, e)", stepText: "Try to intersect the two lines we found for new collision points."},
+            {code: "  else:", stepText: "There are lines that continue onwards, so we should try to check for collisions between those. <b>Note that we ignore any neighbors below if they do not exist and skip the relevant code.</b>"},
+            {code: "    s' = leftmost segment of union(L, C) in tree", stepText: "Get the leftmost segment that continues onwards to the right."},
+            {code: "    s_L = left neighbor of s' in tree", stepText: "Get the left neighbor of that line."},
+            {code: "    FindNewEvent(s_L, s', e)", stepText: "Try to intersect the two lines we found for new collision points."},
+            {code: "    s'' = rightmost segment of union(L, C) in tree", stepText: "Get the rightmost segment that continues onwards to the right."},
+            {code: "    s_R = right neighbor of s'' in tree", stepText: "Get the right neighbor of that line."},
+            {code: "    FindNewEvent(s'', s_R, e)", stepText: "Try to intersect the two lines we found for new collision points."},
             {code: "", stepText: ""},
             {code: "FindNewEvent(s_L, s_R, p):", stepText: ""},
-            {code: "  i = intersect(s_L, s_R):", stepText: ""},
-            {code: "  if i.x > p.x:", stepText: ""},
-            {code: "    queue.add(i)", stepText: ""},
-            {code: "  output.add(i)", stepText: ""},
+            {code: "  if(i = intersect(s_L, s_R) and i.x > p.x):", stepText: "Check if an intersection between the two given lines that occurs to the right of the sweepline."},
+            {code: "    queue.add(i)", stepText: "And add that intersection to the queue."},
         ];
     }
 
@@ -258,8 +256,6 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
             steps.push(...this.handleEventPoint(point.key!, status, output, queue, sweepline));
         }
 
-        steps.push(new VizStep(0, output.values().map(p => new AddElementAction(this.canvas, this.canvas.circle(5).cx(p.x).cy(p.y)))));
-
         return steps;
     }
 
@@ -304,14 +300,26 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
             }
         });
 
-        const highlightL = new VizStep(5, Lp.map(seg => new TransformElementAction(this.canvas, this.segs.get(seg)!,
-            l => l.stroke("yellow"),
-            l => l.stroke("black"))));
+        const highlightL = new VizStep(5, Lp.map(seg => {
+            let prevColor: any;
+            return new TransformElementAction(this.canvas, this.segs.get(seg)!,
+            l => {
+                prevColor = this.segs.get(seg)!.attr("stroke");
+                l.stroke("yellow");
+            },
+            l => l.stroke(prevColor));
+        }));
         steps.push(highlightL);
 
-        const highlightC = new VizStep(6, Cp.map(seg => new TransformElementAction(this.canvas, this.segs.get(seg)!,
-            l => l.stroke("red"),
-            l => l.stroke("black"))));
+        const highlightC = new VizStep(6, Cp.map(seg => {
+            let prevColor: any;
+            return new TransformElementAction(this.canvas, this.segs.get(seg)!,
+            l => {
+                prevColor = this.segs.get(seg)!.attr("stroke");
+                l.stroke("red");
+            },
+            l => l.stroke(prevColor));
+        }));
         steps.push(highlightC);
 
         steps.push(new VizStep(7)); // show branch
@@ -373,7 +381,16 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
                     sr = status.next(sNode);
 
                 if (sl && sr) {
-                    this.findNewEvent(sl.key!, sr.key!, output, queue);
+                    let firstTemp, secondTemp;
+                    steps.push(new VizStep(12, [
+                        firstTemp = new AddElementAction(this.canvas, this.segs.get(sl.key!)!.clone().stroke("blue"))
+                    ]));
+                    steps.push(new VizStep(13, [
+                        secondTemp = new AddElementAction(this.canvas, this.segs.get(sr.key!)!.clone().stroke("blue"))
+                    ]));
+                    steps.push(new VizStep(14));
+                    this.findNewEvent(sl.key!, sr.key!, output, queue, steps);
+                    steps.push(new VizStep(14, [firstTemp.getReverse(), secondTemp.getReverse()]));
                 }
 
                 status.remove(s);
@@ -389,11 +406,29 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
                 srr = srrNode && status.next(srrNode);
 
             if (sll && UCpmin) {
-                this.findNewEvent(sll.key!, UCpmin, output, queue);
+                let firstTemp, secondTemp;
+                steps.push(new VizStep(16, [
+                    firstTemp = new AddElementAction(this.canvas, this.segs.get(sll.key!)!.clone().stroke("blue"))
+                ]));
+                steps.push(new VizStep(17, [
+                    secondTemp = new AddElementAction(this.canvas, this.segs.get(UCpmin)!.clone().stroke("blue"))
+                ]));
+                steps.push(new VizStep(18));
+                this.findNewEvent(sll.key!, UCpmin, output, queue, steps);
+                steps.push(new VizStep(18, [firstTemp.getReverse(), secondTemp.getReverse()]));
             }
 
             if (srr && UCpmax) {
-                this.findNewEvent(srr.key!, UCpmax, output, queue);
+                let firstTemp, secondTemp;
+                steps.push(new VizStep(19, [
+                    firstTemp = new AddElementAction(this.canvas, this.segs.get(srr.key!)!.clone().stroke("blue"))
+                ]));
+                steps.push(new VizStep(20, [
+                    secondTemp = new AddElementAction(this.canvas, this.segs.get(UCpmax)!.clone().stroke("blue"))
+                ]));
+                steps.push(new VizStep(21));
+                this.findNewEvent(srr.key!, UCpmax, output, queue, steps);
+                steps.push(new VizStep(21, [firstTemp.getReverse(), secondTemp.getReverse()]));
             }
 
             for (const p of Lp) {
@@ -404,14 +439,17 @@ export class LineSegmentIntersectionViz extends VizualizationBase {
         return steps;
     }
 
-    private findNewEvent(sl: Segment, sr: Segment, output: AVL<SweepEvent, SweepEvent>, queue: AVL<SweepEvent, SweepEvent>) {
+    private findNewEvent(sl: Segment, sr: Segment, output: AVL<SweepEvent, SweepEvent>, queue: AVL<SweepEvent, SweepEvent>, steps: VizStep[]) {
         const intersectionCoords = utils.findSegmentsIntersection(sl, sr);
         let intersectionPoint: SweepEvent;
 
+        steps.push(new VizStep(24));
         if (intersectionCoords) {
-            intersectionPoint = new SweepEvent(intersectionCoords, "intersection", this.canvas.circle(5).cx(intersectionCoords[0]).cy(intersectionCoords[1]).fill("black"));
+            intersectionPoint = new SweepEvent(intersectionCoords, "intersection", this.canvas.circle(5).cx(intersectionCoords[0]).cy(intersectionCoords[1]).fill("black").hide());
+            steps.push(new VizStep(25, [new AddElementOnceAction(this.canvas, this.canvas.circle(10).cx(intersectionCoords[0]).cy(intersectionCoords[1]).fill("blue"))]));
 
             if (!output.contains(intersectionPoint)) {
+                steps.push(new VizStep(25, [new AddElementAction(this.canvas, intersectionPoint.element)]));
                 queue.insert(intersectionPoint, intersectionPoint);
             }
 
