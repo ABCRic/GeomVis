@@ -182,6 +182,8 @@ function updatePseudoCodeHighlight(oldStep: number | null) {
         if (steps[currentVizStep].extraText !== null)
             text += "<br>" + steps[currentVizStep].extraText;
         stepTextPanel.innerHTML = text;
+        // make highlighted line visible
+        items[currentStep].scrollIntoView({block: "nearest", inline: "nearest"});
     }
 }
 
