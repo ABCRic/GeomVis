@@ -5,11 +5,9 @@
   "private": true,
   "dependencies": {
     "@svgdotjs/svg.topoly.js": "^1.0.2",
-    "@types/d3": "^5.7.1",
     "@types/jquery": "^3.3.29",
     "avl": "^1.4.4",
     "bootstrap": "^4.3.1",
-    "d3": "^5.9.2",
     "jquery": "^3.3.1",
     "line-intersect": "^2.2.0",
     "popper.js": "^1.14.7",
