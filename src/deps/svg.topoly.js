@@ -1,6 +1,18 @@
 // svg.topoly.js 0.1.1 - Copyright (c) 2014 Wout Fierens - Licensed under the MIT license
 
 ;(function() {
+  // PATCH: for chrome, where getPathSegAtLength is deprecated
+  const getParserPath = (pathArray) => {
+    const path = SVG.parser.path
+    path.setAttribute('d', pathArray.flat().join(" "))
+    return path
+  }
+  // PATCH BREAK (continues further)
+
+  const pathLength = (pathArray) => {
+    return getParserPath(pathArray).getTotalLength()
+  }
+
 
     SVG.extend(SVG.PathArray, {
       // Convert path to poly
@@ -88,11 +100,25 @@
           // add point
           addPoint(x, y)
         }
+
+        // PATCH: for chrome, where getPathSegAtLength is deprecated
+        segmentIndex = 0
+        console.log(this)
+        let subPath = this.value.slice(0, segmentIndex + 1)
+        let subPathLength = pathLength(subPath)
+        // PATCH BREAK (continues further)
         
         // sample through path
         while (length < total) {
           // get segment index
-          segmentIndex = SVG.parser.path.getPathSegAtLength(length)
+          //segmentIndex = SVG.parser.path.getPathSegAtLength(length)
+          // PATCH: for chrome, where getPathSegAtLength is deprecated
+          while (subPathLength < length) {
+            ++segmentIndex
+            subPath = this.value.slice(0, segmentIndex + 1)
+            subPathLength = pathLength(subPath)
+          }
+          // PATCH END
   
           // get segment
           segment = segments[segmentIndex]
