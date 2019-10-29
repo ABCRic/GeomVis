@@ -516,5 +516,15 @@ The simple aproach is to test every line, which takes O(n²) time, where n is th
         inputPath: "inputs/linesegmentintersection/example1.svg",
         name: "Example 1"
     },
+    {
+        imagePath: "inputs/linesegmentintersection/example2.png",
+        inputPath: "inputs/linesegmentintersection/example2.svg",
+        name: "Example 2"
+    },
+    {
+        imagePath: "inputs/linesegmentintersection/example3.png",
+        inputPath: "inputs/linesegmentintersection/example3.svg",
+        name: "Example 3"
+    },
 ]);
 }
