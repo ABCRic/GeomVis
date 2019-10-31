@@ -10,7 +10,7 @@ NPM is required. Clone the repository and run `npm install` to install dependenc
 ## Development
 Same as Running above but run webpack instead as `npx webpack --mode development --watch` for hot-reloading.
 
-# Acknoledgements
+# Acknowledgements
 GeomVis uses the following libraries:
 * [svg.js](https://github.com/svgdotjs/svg.js), MIT License, and plugins:
   * [svg.draggable.js](https://github.com/svgdotjs/svg.draggable.js), MIT License
